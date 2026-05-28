@@ -250,6 +250,13 @@ function HomePage() {
                 </div>
               </div>
               <div className="footer-item">
+                <span className="material-symbols-outlined footer-icon">mail</span>
+                <div>
+                  <p className="font-headline label-md text-primary" style={{ textTransform: 'none', letterSpacing: 0 }}>Email</p>
+                  <a href="mailto:stay.madhuban@gmail.com" className="body-sm text-on-surface-variant footer-link">stay.madhuban@gmail.com</a>
+                </div>
+              </div>
+              <div className="footer-item">
                 <span className="material-symbols-outlined footer-icon">location_on</span>
                 <div>
                   <p className="font-headline label-md text-primary" style={{ textTransform: 'none', letterSpacing: 0 }}>Address</p>
