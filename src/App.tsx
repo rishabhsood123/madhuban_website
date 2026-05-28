@@ -93,7 +93,7 @@ function HomePage() {
               Meet your host
             </h2>
             <div className="body-lg intro-desc host-content">
-              <img src={`${import.meta.env.BASE_URL}assets/host_family.png`} alt="Madhu Sood and family" className="host-img" />
+              <img src={`${import.meta.env.BASE_URL}assets/host_family.jpg`} alt="Madhu Sood and family" className="host-img" />
               <p>
                 The property is lovingly owned and managed by Madhu Sood and her family of four. Born in the beautiful Kangra district of Himachal Pradesh and raised in Bangalore, Madhu brings together the warmth of the mountains and the vibrant culture of South India.
               </p>
