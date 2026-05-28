@@ -86,7 +86,17 @@ export default function Gallery() {
     const pills = pillsRef.current;
     if (!pills) return;
     const activePill = pills.children[activeMonth] as HTMLElement;
-    activePill?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    if (!activePill) return;
+
+    // Center the active pill horizontally inside the pills container
+    const containerWidth = pills.clientWidth;
+    const pillLeft = activePill.offsetLeft;
+    const pillWidth = activePill.clientWidth;
+
+    pills.scrollTo({
+      left: pillLeft - (containerWidth / 2) + (pillWidth / 2),
+      behavior: 'smooth',
+    });
   }, [activeMonth]);
 
   return (
