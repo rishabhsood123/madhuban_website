@@ -244,9 +244,9 @@ function HomePage() {
                 <span className="material-symbols-outlined footer-icon">phone</span>
                 <div>
                   <p className="font-headline label-md text-primary" style={{ textTransform: 'none', letterSpacing: 0 }}>Phone / WhatsApp</p>
-                  <a href="tel:+919816003451" className="body-sm text-on-surface-variant footer-link">+91 98160 03451</a>
+                  <a href="https://wa.me/919816003451?text=Hey%20there%2C%20I%20am%20looking%20to%20stay%20with%20Madhuban!" target="_blank" rel="noopener noreferrer" className="body-sm text-on-surface-variant footer-link">+91 98160 03451</a>
                   <span className="body-sm text-on-surface-variant"> / </span>
-                  <a href="tel:+919611324105" className="body-sm text-on-surface-variant footer-link">+91 96113 24105</a>
+                  <a href="https://wa.me/919611324105?text=Hey%20there%2C%20I%20am%20looking%20to%20stay%20with%20Madhuban!" target="_blank" rel="noopener noreferrer" className="body-sm text-on-surface-variant footer-link">+91 96113 24105</a>
                 </div>
               </div>
               <div className="footer-item">
