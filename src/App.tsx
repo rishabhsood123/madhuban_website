@@ -1,5 +1,5 @@
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import { Player } from '@lordicon/react';
 import './index.css';
@@ -10,6 +10,12 @@ import Gallery from './Gallery';
 
 function HomePage() {
   const mapsPlayerRef = useRef<Player>(null);
+  const [isHindi, setIsHindi] = useState(false);
+
+  useEffect(() => {
+    const id = setInterval(() => setIsHindi(h => !h), 4000);
+    return () => clearInterval(id);
+  }, []);
 
   const handleMapsMouseEnter = () => {
     mapsPlayerRef.current?.playFromBeginning();
@@ -73,7 +79,20 @@ function HomePage() {
             src={`${import.meta.env.BASE_URL}assets/hero.png`} 
           />
           <div className="hero-overlay flex-col items-center justify-center">
-            <h1 className="hero-title font-headline">Madhuban</h1>
+            <h1 className="hero-title hero-title-switcher">
+              <span
+                className={`hero-title-lang${!isHindi ? ' hero-lang-active' : ' hero-lang-exit'}`}
+                style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
+              >
+                Madhuban
+              </span>
+              <span
+                className={`hero-title-lang${isHindi ? ' hero-lang-active' : ' hero-lang-exit'}`}
+                style={{ fontFamily: "'Rozha One', serif", fontWeight: 400 }}
+              >
+                मधुबन
+              </span>
+            </h1>
             <p className="hero-subtitle label-sm">BREATHABLE HOMESTAY IN THE HEART OF NATURE.</p>
           </div>
         </section>

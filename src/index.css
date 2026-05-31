@@ -245,13 +245,47 @@ body {
 }
 
 .hero-title {
-  font-family: 'Saol Display', 'Playfair Display', serif;
-  font-weight: bold;
-  font-style: italic;
+  font-family: 'Rozha One', 'Playfair Display', serif;
+  font-weight: 400;
   font-size: clamp(64px, 15vw, 160px);
-  line-height: 1;
-  letter-spacing: -0.04em;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
   margin-bottom: var(--spacing-md);
+}
+
+/* Hero Title Language Switcher */
+.hero-title-switcher {
+  position: relative;
+  height: 1.2em;
+  overflow: visible;
+  display: block;
+}
+
+.hero-title-lang {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  transition:
+    opacity 0.95s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 0.95s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.95s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-lang-active {
+  opacity: 1;
+  filter: blur(0px);
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.hero-lang-exit {
+  opacity: 0;
+  filter: blur(18px);
+  transform: scale(0.94);
+  pointer-events: none;
 }
 
 .hero-subtitle {
