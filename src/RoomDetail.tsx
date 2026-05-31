@@ -193,7 +193,7 @@ export default function RoomDetail() {
             <div className="food-pricing-item">
               <div className="food-pricing-header">
                 <span className="material-symbols-outlined food-pricing-icon">restaurant</span>
-                <span className="font-headline label-md text-primary" style={{ textTransform: 'none' }}>Lunch</span>
+                <span className="font-headline label-md text-primary" style={{ textTransform: 'none' }}>Lunch / Brunch</span>
               </div>
               <span className="food-pricing-badge">₹600 / meal</span>
             </div>
