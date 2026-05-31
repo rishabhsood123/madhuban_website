@@ -215,21 +215,14 @@ export default function RoomDetail() {
               <span className="material-symbols-outlined cancellation-icon" style={{ color: 'var(--primary)' }}>check_circle</span>
               <div>
                 <p className="font-headline label-md" style={{ textTransform: 'none', color: 'var(--primary)' }}>Free cancellation</p>
-                <p className="body-sm text-on-surface-variant">Cancel up to 7 days before check-in for a full refund.</p>
+                <p className="body-sm text-on-surface-variant">Cancel any time before the day of check-in for a full refund.</p>
               </div>
             </div>
             <div className="cancellation-item">
               <span className="material-symbols-outlined cancellation-icon" style={{ color: 'var(--secondary)' }}>info</span>
               <div>
                 <p className="font-headline label-md" style={{ textTransform: 'none', color: 'var(--secondary)' }}>Partial refund</p>
-                <p className="body-sm text-on-surface-variant">50% refund if cancelled 3–7 days before check-in.</p>
-              </div>
-            </div>
-            <div className="cancellation-item">
-              <span className="material-symbols-outlined cancellation-icon" style={{ color: '#b0483a' }}>cancel</span>
-              <div>
-                <p className="font-headline label-md" style={{ textTransform: 'none', color: '#b0483a' }}>No refund</p>
-                <p className="body-sm text-on-surface-variant">No refund for cancellations within 3 days of check-in.</p>
+                <p className="body-sm text-on-surface-variant">50% refund for cancellations made 1 day before or on the day of check-in.</p>
               </div>
             </div>
           </div>
