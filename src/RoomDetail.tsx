@@ -144,6 +144,19 @@ export default function RoomDetail() {
           </div>
         </div>
 
+        {/* Extra Beds Add-on */}
+        {room.extraBeds && (
+          <div className="extra-beds-callout">
+            <span className="material-symbols-outlined extra-beds-icon">bed</span>
+            <div className="extra-beds-text">
+              <span className="font-headline label-md extra-beds-title">Extra Beds Available</span>
+              <span className="body-sm text-on-surface-variant">
+                Up to {room.extraBeds.count} additional single beds · {room.extraBeds.priceFormatted} / bed / person / night
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Description */}
         <section className="detail-section">
           <h2 className="font-headline headline-sm text-primary detail-section-title">About this room</h2>

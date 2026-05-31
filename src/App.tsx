@@ -197,6 +197,7 @@ function HomePage() {
             <div className="facility-item">
               <span className="material-symbols-outlined facility-icon">directions_walk</span>
               <span className="font-headline label-md facility-label">Trek & Activity Guidance</span>
+              <span className="facility-sublabel">₹500/head/day for local treks</span>
             </div>
             <div className="facility-item">
               <span className="material-symbols-outlined facility-icon">two_wheeler</span>

@@ -13,6 +13,7 @@ export interface RoomDetail {
   features: { icon: string; label: string }[];
   images: string[];
   heroImage: string;
+  extraBeds?: { count: number; pricePerBed: number; priceFormatted: string };
 }
 
 const BASE = import.meta.env.BASE_URL;
@@ -22,8 +23,8 @@ export const rooms: RoomDetail[] = [
     id: 'orchard-room',
     name: 'Orchard Room',
     tagline: 'Wake up to the gentle rustle of apple trees',
-    price: 2500,
-    priceFormatted: '₹2,500',
+    price: 8000,
+    priceFormatted: '₹8,000',
     description:
       'Wake up to the gentle rustle of apple trees. Features a private sit-out surrounded by our lush orchard.',
     longDescription:
@@ -55,8 +56,8 @@ export const rooms: RoomDetail[] = [
     id: 'valley-room',
     name: 'Valley Room',
     tagline: 'Sweeping views of the Fozal Valley',
-    price: 3000,
-    priceFormatted: '₹3,000',
+    price: 8000,
+    priceFormatted: '₹8,000',
     description:
       'Enjoy uninterrupted, sweeping views of the Fozal Valley and distant Himalayan peaks right from your bed.',
     longDescription:
@@ -88,16 +89,17 @@ export const rooms: RoomDetail[] = [
     id: 'attic-stay',
     name: 'Attic Stay',
     tagline: 'A cozy retreat under the A-frame roof',
-    price: 2000,
-    priceFormatted: '₹2,000',
+    price: 12000,
+    priceFormatted: '₹12,000',
     description:
       'A cozy, wood-paneled retreat under our A-frame roof. Perfect for stargazing and ultimate privacy.',
     longDescription:
       'The Attic Stay is our most charming and intimate space — a snug wood-panelled room tucked under the dramatic A-frame roof of our cottage. Exposed beams, warm string lights, and a skylight that opens up to the Himalayan night sky make this a favourite among solo travellers, writers, and couples seeking quiet seclusion. The sloped ceilings and compact layout give it a treehouse-like feel, while the comfortable bedding and warm rugs ensure a restful sleep. A shared bathroom is located just a few steps down. If you\'ve ever dreamt of falling asleep watching the stars, this is your room.',
-    guests: 2,
+    guests: 4,
     bedrooms: 1,
-    beds: '1 double',
+    beds: '2 double',
     bathrooms: '1 shared',
+    extraBeds: { count: 2, pricePerBed: 2000, priceFormatted: '₹2,000' },
     features: [
       { icon: 'roofing', label: 'A-Frame Ceiling' },
       { icon: 'star', label: 'Skylight Window' },

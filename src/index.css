@@ -812,6 +812,37 @@ body {
   line-height: 1;
 }
 
+/* Extra Beds Callout */
+.extra-beds-callout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface-container-low);
+  border-radius: 10px;
+  margin-top: 16px;
+  border: 1px solid var(--primary-fixed);
+}
+
+.extra-beds-icon {
+  font-size: 22px;
+  color: var(--secondary);
+  flex-shrink: 0;
+}
+
+.extra-beds-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.extra-beds-title {
+  color: var(--primary);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+}
+
 /* Detail Sections */
 .detail-section {
   padding: 32px 0;
@@ -862,23 +893,19 @@ body {
 
 /* Food Pricing */
 .food-pricing-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-
-@media (min-width: 480px) {
-  .food-pricing-grid {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .food-pricing-item {
   background: var(--surface-container-low);
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 10px;
+  padding: 10px 14px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
 }
 
@@ -889,19 +916,19 @@ body {
 }
 
 .food-pricing-icon {
-  font-size: 22px;
+  font-size: 20px;
   color: var(--secondary);
 }
 
 .food-pricing-badge {
   font-family: var(--font-headline);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--on-surface);
   background: var(--surface-container-highest);
-  padding: 6px 12px;
-  border-radius: 8px;
-  text-align: center;
+  padding: 4px 12px;
+  border-radius: 6px;
+  white-space: nowrap;
 }
 
 .food-pricing-badge.complimentary {
