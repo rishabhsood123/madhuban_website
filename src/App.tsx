@@ -17,6 +17,25 @@ function HomePage() {
     return () => clearInterval(id);
   }, []);
 
+  // Scroll-reveal observer
+  useEffect(() => {
+    const els = document.querySelectorAll('.reveal, .reveal-stagger');
+    if (!els.length) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+    );
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   const handleMapsMouseEnter = () => {
     mapsPlayerRef.current?.playFromBeginning();
   };
@@ -98,7 +117,7 @@ function HomePage() {
         </section>
 
         <section className="container content-section">
-          <div id="about" className="intro-text">
+          <div id="about" className="intro-text reveal">
             <h1 className="font-headline headline-sm intro-title">
               About Us
             </h1>
@@ -107,7 +126,7 @@ function HomePage() {
             </p>
           </div>
 
-          <div className="intro-text" style={{ marginTop: '48px' }}>
+          <div className="intro-text reveal" style={{ marginTop: '48px' }}>
             <h2 className="font-headline headline-sm intro-title">
               Meet your host
             </h2>
@@ -125,13 +144,13 @@ function HomePage() {
             </div>
           </div>
 
-          <div id="accommodation" className="intro-text" style={{ marginTop: '48px', marginBottom: '24px' }}>
+          <div id="accommodation" className="intro-text reveal" style={{ marginTop: '48px', marginBottom: '24px' }}>
             <h2 className="font-headline headline-sm intro-title">
               Accommodation
             </h2>
           </div>
 
-          <div className="bento-grid">
+          <div className="bento-grid reveal-stagger reveal">
             
             <Link to="/room/orchard-room" className="card room-card col-span-6 room-card-link">
               <img src={`${import.meta.env.BASE_URL}assets/orchard_room.png`} alt="Orchard Room" className="room-img" />
@@ -163,11 +182,11 @@ function HomePage() {
           </div>
 
           {/* Facilities Section */}
-          <div id="facilities" className="intro-text" style={{ marginTop: '48px', marginBottom: '24px' }}>
+          <div id="facilities" className="intro-text reveal" style={{ marginTop: '48px', marginBottom: '24px' }}>
             <h2 className="font-headline headline-sm intro-title">Facilities</h2>
           </div>
 
-          <div className="facilities-grid">
+          <div className="facilities-grid reveal-stagger reveal">
             <div className="facility-item">
               <span className="material-symbols-outlined facility-icon">restaurant</span>
               <span className="font-headline label-md facility-label">Home-Cooked Meals</span>
@@ -226,11 +245,11 @@ function HomePage() {
           </div>
 
           {/* House Rules Section */}
-          <div id="house-rules" className="intro-text" style={{ marginTop: '48px', marginBottom: '24px' }}>
+          <div id="house-rules" className="intro-text reveal" style={{ marginTop: '48px', marginBottom: '24px' }}>
             <h2 className="font-headline headline-sm intro-title">House Rules</h2>
           </div>
 
-          <ul className="house-rules-list">
+          <ul className="house-rules-list reveal-stagger reveal">
             <li className="house-rule-item">
               <span className="material-symbols-outlined rule-icon">smoking_rooms</span>
               <p className="body-md text-on-surface-variant">No smoking or drinking inside the property.</p>
@@ -255,7 +274,7 @@ function HomePage() {
 
       </main>
 
-      <footer id="contact" className="footer">
+      <footer id="contact" className="footer reveal">
         <div className="container footer-content">
           <div className="footer-details">
             <h3 className="font-headline label-md text-secondary" style={{ marginBottom: '20px' }}>Contact Us</h3>
