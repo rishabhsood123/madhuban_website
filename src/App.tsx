@@ -76,7 +76,8 @@ function HomePage() {
           <img 
             className="hero-img" 
             alt="A serene landscape featuring a modern stone and wood cabin with a sloped roof at dawn." 
-            src={`${import.meta.env.BASE_URL}assets/hero.png`} 
+            src={`${import.meta.env.BASE_URL}assets/ai_expected.png`} 
+            style={{ objectPosition: 'center 40%', transform: 'scale(1.15)' }}
           />
           <div className="hero-overlay flex-col items-center justify-center">
             <h1 className="hero-title hero-title-switcher">
