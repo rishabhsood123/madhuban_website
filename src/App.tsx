@@ -7,6 +7,7 @@ import WeatherWidget from './WeatherWidget';
 import RoomDetail from './RoomDetail';
 import googleMapsIcon from './assets/google-maps.json';
 import Gallery from './Gallery';
+import { rooms } from './roomData';
 
 function HomePage() {
   const mapsPlayerRef = useRef<Player>(null);
@@ -133,34 +134,16 @@ function HomePage() {
           </div>
 
           <div className="bento-grid">
-            
-            <Link to="/room/orchard-room" className="card room-card col-span-6 room-card-link">
-              <img src={`${import.meta.env.BASE_URL}assets/orchard_room.png`} alt="Orchard Room" className="room-img" />
-              <div className="room-content">
-                <h3 className="font-headline headline-md text-primary mb-sm">Orchard Room</h3>
-                <p className="body-md text-on-surface-variant">Wake up to the gentle rustle of apple trees. Features a private sit-out surrounded by our lush orchard.</p>
-                <span className="room-card-cta label-sm">View details →</span>
-              </div>
-            </Link>
-
-            <Link to="/room/valley-room" className="card room-card col-span-6 room-card-link">
-              <img src={`${import.meta.env.BASE_URL}assets/valley_room.png`} alt="Valley Room" className="room-img" />
-              <div className="room-content">
-                <h3 className="font-headline headline-md text-primary mb-sm">Valley Room</h3>
-                <p className="body-md text-on-surface-variant">Enjoy uninterrupted, sweeping views of the Fozal Valley and distant Himalayan peaks right from your bed.</p>
-                <span className="room-card-cta label-sm">View details →</span>
-              </div>
-            </Link>
-
-            <Link to="/room/attic-stay" className="card room-card col-span-6 room-card-link">
-              <img src={`${import.meta.env.BASE_URL}assets/attic_stay.png`} alt="Attic Stay" className="room-img" />
-              <div className="room-content">
-                <h3 className="font-headline headline-md text-primary mb-sm">Attic Stay</h3>
-                <p className="body-md text-on-surface-variant">A cozy, wood-paneled retreat under our A-frame roof. Perfect for stargazing and ultimate privacy.</p>
-                <span className="room-card-cta label-sm">View details →</span>
-              </div>
-            </Link>
-
+            {rooms.map(room => (
+              <Link key={room.id} to={`/room/${room.id}`} className="card room-card col-span-6 room-card-link">
+                <img src={room.heroImage} alt={room.name} className="room-img" />
+                <div className="room-content">
+                  <h3 className="font-headline headline-md text-primary mb-sm">{room.name}</h3>
+                  <p className="body-md text-on-surface-variant">{room.description}</p>
+                  <span className="room-card-cta label-sm">View details →</span>
+                </div>
+              </Link>
+            ))}
           </div>
 
           {/* Facilities Section */}
