@@ -1,3 +1,5 @@
+import { createClient } from '@libsql/client';
+
 export interface ReviewItem {
   id: number;
   room_id: string;
@@ -13,7 +15,7 @@ export interface ReviewItem {
   created_at: string;
 }
 
-// In-memory initial seed store for serverless fallback
+// In-memory fallback initial seed store
 let inMemoryReviews: ReviewItem[] = [
   {
     id: 1,
@@ -187,6 +189,35 @@ let inMemoryReviews: ReviewItem[] = [
 
 let nextId = 13;
 
+function getTursoClient() {
+  const url = process.env.TURSO_DATABASE_URL;
+  const authToken = process.env.TURSO_AUTH_TOKEN;
+  if (!url) return null;
+  return createClient({
+    url,
+    authToken: authToken || '',
+  });
+}
+
+async function initTursoDb(turso: ReturnType<typeof createClient>) {
+  await turso.execute(`
+    CREATE TABLE IF NOT EXISTS reviews (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      room_id TEXT NOT NULL DEFAULT 'overall',
+      name TEXT NOT NULL,
+      rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
+      cleanliness INTEGER NOT NULL DEFAULT 5,
+      accuracy INTEGER NOT NULL DEFAULT 5,
+      check_in INTEGER NOT NULL DEFAULT 5,
+      communication INTEGER NOT NULL DEFAULT 5,
+      location INTEGER NOT NULL DEFAULT 5,
+      value INTEGER NOT NULL DEFAULT 5,
+      comment TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+}
+
 function computeStats(reviews: ReviewItem[]) {
   if (reviews.length === 0) {
     return {
@@ -214,7 +245,6 @@ function computeStats(reviews: ReviewItem[]) {
 }
 
 export default async function handler(req: any, res: any) {
-  // Enable CORS
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -227,12 +257,128 @@ export default async function handler(req: any, res: any) {
     return res.status(200).end();
   }
 
+  const turso = getTursoClient();
   const { method } = req;
   const urlParts = (req.url || '').split('?');
   const queryParams = new URLSearchParams(urlParts[1] || '');
   const roomIdParam = req.query?.roomId || queryParams.get('roomId');
 
   try {
+    if (turso) {
+      await initTursoDb(turso);
+
+      if (method === 'GET') {
+        let result;
+        if (roomIdParam && roomIdParam !== 'all') {
+          result = await turso.execute({
+            sql: "SELECT * FROM reviews WHERE room_id = ? OR room_id = 'overall' ORDER BY id DESC",
+            args: [roomIdParam]
+          });
+        } else {
+          result = await turso.execute("SELECT * FROM reviews ORDER BY id DESC");
+        }
+
+        const allResult = await turso.execute("SELECT * FROM reviews");
+        const reviews = result.rows as unknown as ReviewItem[];
+        const allReviews = allResult.rows as unknown as ReviewItem[];
+        const stats = computeStats(allReviews);
+
+        return res.status(200).json({ reviews, stats });
+      }
+
+      if (method === 'POST') {
+        const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
+        const {
+          name,
+          roomId = 'overall',
+          rating = 5,
+          cleanliness = 5,
+          accuracy = 5,
+          checkIn = 5,
+          communication = 5,
+          location = 5,
+          value = 5,
+          comment
+        } = body;
+
+        if (!name || !comment) {
+          return res.status(400).json({ error: 'Name and comment are required.' });
+        }
+
+        const numRating = Math.min(5, Math.max(1, parseInt(rating, 10)));
+        const insertRes = await turso.execute({
+          sql: `INSERT INTO reviews (room_id, name, rating, cleanliness, accuracy, check_in, communication, location, value, comment)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          args: [
+            roomId,
+            name.trim(),
+            numRating,
+            parseInt(cleanliness, 10) || 5,
+            parseInt(accuracy, 10) || 5,
+            parseInt(checkIn, 10) || 5,
+            parseInt(communication, 10) || 5,
+            parseInt(location, 10) || 5,
+            parseInt(value, 10) || 5,
+            comment.trim()
+          ]
+        });
+
+        const createdId = Number(insertRes.lastInsertRowid);
+        const fetchRes = await turso.execute({
+          sql: "SELECT * FROM reviews WHERE id = ?",
+          args: [createdId]
+        });
+
+        return res.status(201).json(fetchRes.rows[0]);
+      }
+
+      if (method === 'PUT') {
+        const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
+        const pathIdStr = (req.url || '').split('/').pop()?.split('?')[0];
+        const targetId = parseInt(req.query?.id || pathIdStr || body.id, 10);
+
+        const numRating = Math.min(5, Math.max(1, parseInt(body.rating || 5, 10)));
+        await turso.execute({
+          sql: `UPDATE reviews 
+                SET room_id = ?, name = ?, rating = ?, cleanliness = ?, accuracy = ?, check_in = ?, communication = ?, location = ?, value = ?, comment = ?
+                WHERE id = ?`,
+          args: [
+            body.roomId || 'overall',
+            (body.name || '').trim(),
+            numRating,
+            parseInt(body.cleanliness, 10) || 5,
+            parseInt(body.accuracy, 10) || 5,
+            parseInt(body.checkIn, 10) || 5,
+            parseInt(body.communication, 10) || 5,
+            parseInt(body.location, 10) || 5,
+            parseInt(body.value, 10) || 5,
+            (body.comment || '').trim(),
+            targetId
+          ]
+        });
+
+        const fetchRes = await turso.execute({
+          sql: "SELECT * FROM reviews WHERE id = ?",
+          args: [targetId]
+        });
+
+        return res.status(200).json(fetchRes.rows[0]);
+      }
+
+      if (method === 'DELETE') {
+        const pathIdStr = (req.url || '').split('/').pop()?.split('?')[0];
+        const targetId = parseInt(req.query?.id || pathIdStr, 10);
+
+        await turso.execute({
+          sql: "DELETE FROM reviews WHERE id = ?",
+          args: [targetId]
+        });
+
+        return res.status(200).json({ success: true, id: targetId });
+      }
+    }
+
+    // In-Memory Fallback if no TURSO_DATABASE_URL is set
     if (method === 'GET') {
       let filtered = inMemoryReviews;
       if (roomIdParam && roomIdParam !== 'all') {
@@ -240,14 +386,9 @@ export default async function handler(req: any, res: any) {
           (r) => r.room_id === roomIdParam || r.room_id === 'overall'
         );
       }
-      // Sort newest first
       const sorted = [...filtered].sort((a, b) => b.id - a.id);
       const stats = computeStats(inMemoryReviews);
-
-      return res.status(200).json({
-        reviews: sorted,
-        stats
-      });
+      return res.status(200).json({ reviews: sorted, stats });
     }
 
     if (method === 'POST') {
@@ -290,7 +431,6 @@ export default async function handler(req: any, res: any) {
 
     if (method === 'PUT') {
       const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
-      // Get ID from path or body
       const pathIdStr = (req.url || '').split('/').pop()?.split('?')[0];
       const targetId = parseInt(req.query?.id || pathIdStr || body.id, 10);
 
@@ -320,12 +460,11 @@ export default async function handler(req: any, res: any) {
     if (method === 'DELETE') {
       const pathIdStr = (req.url || '').split('/').pop()?.split('?')[0];
       const targetId = parseInt(req.query?.id || pathIdStr, 10);
-
       inMemoryReviews = inMemoryReviews.filter((r) => r.id !== targetId);
       return res.status(200).json({ success: true, id: targetId });
     }
 
-    return res.status(455).json({ error: `Method ${method} Not Allowed` });
+    return res.status(405).json({ error: `Method ${method} Not Allowed` });
   } catch (err: any) {
     console.error('API Error:', err);
     return res.status(500).json({ error: err.message || 'Internal Server Error' });

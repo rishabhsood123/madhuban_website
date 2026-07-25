@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@libsql/client": "^0.17.4",
     "@lordicon/react": "^1.11.0",
     "@meteocons/lottie": "^0.1.0",
     "@vercel/analytics": "^2.0.1",
