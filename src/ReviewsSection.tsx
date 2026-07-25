@@ -67,7 +67,7 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
   // Modals
   const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
   const [isAllReviewsModalOpen, setIsAllReviewsModalOpen] = useState(false);
-  const [expandedReviewId, setExpandedReviewId] = useState<number | null>(null);
+  const [selectedDetailReview, setSelectedDetailReview] = useState<Review | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Form State
@@ -325,10 +325,9 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
 
             <div className="reviews-carousel-container" ref={carouselRef}>
               {carouselReviews.map((rev) => {
-                const isLong = rev.comment.length > 170;
-                const isExpanded = expandedReviewId === rev.id;
-                const displayComment = isLong && !isExpanded 
-                  ? rev.comment.slice(0, 170) + '...'
+                const isLong = rev.comment.length > 130;
+                const displayComment = isLong 
+                  ? rev.comment.slice(0, 130) + '...'
                   : rev.comment;
 
                 return (
@@ -368,9 +367,9 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
                     {isLong && (
                       <button 
                         className="show-more-link"
-                        onClick={() => setExpandedReviewId(isExpanded ? null : rev.id)}
+                        onClick={() => setSelectedDetailReview(rev)}
                       >
-                        {isExpanded ? 'Show less' : 'Show more'}
+                        Show more &gt;
                       </button>
                     )}
                   </div>
@@ -637,6 +636,56 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* SINGLE REVIEW DETAIL MODAL (Tapping "Show more") */}
+      {selectedDetailReview && (
+        <div className="review-modal-backdrop" onClick={() => setSelectedDetailReview(null)}>
+          <div className="all-reviews-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+            <button 
+              className="review-modal-close" 
+              onClick={() => setSelectedDetailReview(null)}
+              aria-label="Close modal"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+
+            <div className="review-card-header" style={{ marginBottom: '16px' }}>
+              <div className="reviewer-avatar">
+                {getInitials(selectedDetailReview.name)}
+              </div>
+              <div className="reviewer-meta">
+                <h3 className="font-headline headline-sm reviewer-name">{selectedDetailReview.name}</h3>
+                <span className="body-sm text-on-surface-variant">{formatDate(selectedDetailReview.created_at)}</span>
+              </div>
+              <span className="room-badge label-sm">
+                {ROOM_NAMES[selectedDetailReview.room_id] || 'Verified Stay'}
+              </span>
+            </div>
+
+            <div className="review-stars-mini" style={{ marginBottom: '16px' }}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span 
+                  key={star} 
+                  className={`material-symbols-outlined star-icon ${star <= selectedDetailReview.rating ? 'filled' : 'empty'}`}
+                  style={{ fontSize: '22px' }}
+                >
+                  star
+                </span>
+              ))}
+            </div>
+
+            <div className="review-comment-full body-lg text-on-surface-variant" style={{ whiteSpace: 'pre-line', wordBreak: 'break-word', overflowWrap: 'anywhere', lineHeight: 1.6 }}>
+              {selectedDetailReview.comment}
+            </div>
+
+            <div style={{ marginTop: '24px', textAlign: 'right' }}>
+              <button className="btn-primary" onClick={() => setSelectedDetailReview(null)}>
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

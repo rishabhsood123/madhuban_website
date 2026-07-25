@@ -1922,7 +1922,9 @@ body {
 }
 
 .review-card-carousel {
-  flex: 0 0 380px;
+  flex: 0 0 min(360px, calc(100vw - 48px));
+  width: min(360px, calc(100vw - 48px));
+  max-width: calc(100vw - 48px);
   scroll-snap-align: start;
   background-color: var(--surface-container-low);
   border: 1px solid var(--surface-container-highest);
@@ -1933,6 +1935,7 @@ body {
   justify-content: space-between;
   gap: 12px;
   box-sizing: border-box;
+  overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -1977,6 +1980,13 @@ body {
 .reviewer-sub {
   font-size: 12px;
   display: block;
+}
+
+.review-comment {
+  line-height: 1.6;
+  white-space: pre-line;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .show-more-link {
