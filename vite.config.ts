@@ -2,9 +2,12 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
+// Use '/' for Vercel deployments and '/madhuban_website/' for GitHub Pages
+const base = process.env.VERCEL ? '/' : (process.env.VITE_BASE_PATH || '/madhuban_website/')
+
 export default defineConfig({
   plugins: [react()],
-  base: '/madhuban_website/',
+  base,
   server: {
     proxy: {
       '/madhuban_website/api': {
