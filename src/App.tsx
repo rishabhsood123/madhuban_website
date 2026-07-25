@@ -69,6 +69,7 @@ function HomePage() {
             <a className="font-headline label-md text-on-surface-variant nav-link" href="#facilities">Facilities</a>
             <a className="font-headline label-md text-on-surface-variant nav-link" href="#reviews">Reviews</a>
             <a className="font-headline label-md text-on-surface-variant nav-link" href="#gallery">Gallery</a>
+            <a className="font-headline label-md text-on-surface-variant nav-link" href="#host">Meet Your Host</a>
             <a className="font-headline label-md text-on-surface-variant nav-link" href="#contact">Contact Us</a>
           </nav>
         </div>
@@ -109,24 +110,6 @@ function HomePage() {
             <p className="body-lg intro-desc">
               Welcome to Madhuban Homestay, a warm family-run retreat nestled in an orchard of apple, plum, apricot, pear, and persimmons in the serene Fozal Valley, Kullu. Our wooden A-frame cottage blends traditional Himachali charm with modern comfort. Enjoy sweeping views of snow-capped Himalayan peaks and the gentle sound of the Fozal River nearby — a perfect escape for those seeking peace, nature, and simplicity.
             </p>
-          </div>
-
-          <div className="intro-text" style={{ marginTop: '48px' }}>
-            <h2 className="font-headline headline-sm intro-title">
-              Meet your host
-            </h2>
-            <div className="body-lg intro-desc host-content">
-              <img src={`${import.meta.env.BASE_URL}assets/host_family.jpg`} alt="Madhu Sood and family" className="host-img" />
-              <p>
-                The property is lovingly owned and managed by Madhu Sood and her family of four. Born in the beautiful Kangra district of Himachal Pradesh and raised in Bangalore, Madhu brings together the warmth of the mountains and the vibrant culture of South India.
-              </p>
-              <p>
-                Fluent in Kannada, she spent many years in Bangalore working as a tutor for students from Grades 1 to 10, reflecting her caring and welcoming nature. She is also a passionate and talented cook, known for preparing a wide variety of delicious meals — from traditional Himachali dishes to North Indian, South Indian, and multi-cuisine specialties.
-              </p>
-              <p>
-                Guests at Madhuban can look forward to warm hospitality, home-cooked food, and an experience that feels both peaceful and personal.
-              </p>
-            </div>
           </div>
 
           <div id="accommodation" className="intro-text" style={{ marginTop: '48px', marginBottom: '24px' }}>
@@ -238,6 +221,24 @@ function HomePage() {
           <ReviewsSection />
 
           <Gallery />
+
+          <div id="host" className="intro-text" style={{ marginTop: '64px' }}>
+            <h2 className="font-headline headline-sm intro-title">
+              Meet your host
+            </h2>
+            <div className="body-lg intro-desc host-content">
+              <img src={`${import.meta.env.BASE_URL}assets/host_family.jpg`} alt="Madhu Sood and family" className="host-img" />
+              <p>
+                The property is lovingly owned and managed by Madhu Sood and her family of four. Born in the beautiful Kangra district of Himachal Pradesh and raised in Bangalore, Madhu brings together the warmth of the mountains and the vibrant culture of South India.
+              </p>
+              <p>
+                Fluent in Kannada, she spent many years in Bangalore working as a tutor for students from Grades 1 to 10, reflecting her caring and welcoming nature. She is also a passionate and talented cook, known for preparing a wide variety of delicious meals — from traditional Himachali dishes to North Indian, South Indian, and multi-cuisine specialties.
+              </p>
+              <p>
+                Guests at Madhuban can look forward to warm hospitality, home-cooked food, and an experience that feels both peaceful and personal.
+              </p>
+            </div>
+          </div>
 
         </section>
 
