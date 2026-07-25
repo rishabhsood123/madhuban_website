@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { getRoomById } from './roomData';
+import ReviewsSection from './ReviewsSection';
 
 export default function RoomDetail() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -227,6 +228,9 @@ export default function RoomDetail() {
             </div>
           </div>
         </section>
+
+        {/* Reviews Section */}
+        <ReviewsSection roomId={room.id} />
 
         {/* House Rules */}
         <section className="detail-section" style={{ paddingBottom: '120px' }}>

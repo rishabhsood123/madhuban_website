@@ -7,6 +7,7 @@ import WeatherWidget from './WeatherWidget';
 import RoomDetail from './RoomDetail';
 import googleMapsIcon from './assets/google-maps.json';
 import Gallery from './Gallery';
+import ReviewsSection from './ReviewsSection';
 import { rooms } from './roomData';
 
 function HomePage() {
@@ -66,6 +67,7 @@ function HomePage() {
             <a className="font-headline label-md text-on-surface-variant nav-link" href="#about">About</a>
             <a className="font-headline label-md text-on-surface-variant nav-link" href="#accommodation">Accommodation</a>
             <a className="font-headline label-md text-on-surface-variant nav-link" href="#facilities">Facilities</a>
+            <a className="font-headline label-md text-on-surface-variant nav-link" href="#reviews">Reviews</a>
             <a className="font-headline label-md text-on-surface-variant nav-link" href="#gallery">Gallery</a>
             <a className="font-headline label-md text-on-surface-variant nav-link" href="#contact">Contact Us</a>
           </nav>
@@ -232,6 +234,8 @@ function HomePage() {
               <p className="body-md text-on-surface-variant">Maintain peace and quiet.</p>
             </li>
           </ul>
+
+          <ReviewsSection />
 
           <Gallery />
 
