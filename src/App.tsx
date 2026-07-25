@@ -13,11 +13,28 @@ import { rooms } from './roomData';
 function HomePage() {
   const mapsPlayerRef = useRef<Player>(null);
   const [isHindi, setIsHindi] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const id = setInterval(() => setIsHindi(h => !h), 4000);
     return () => clearInterval(id);
   }, []);
+
+  // Close hamburger menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   const handleMapsMouseEnter = () => {
     mapsPlayerRef.current?.playFromBeginning();
@@ -32,7 +49,80 @@ function HomePage() {
       <header className="header">
         <div className="container">
           <div className="header-top">
-            <div className="logo-container">
+            <div className="logo-container" style={{ position: 'relative' }} ref={menuRef}>
+              {/* Minimal Hamburger Menu Button (Top Left before Logo) */}
+              <button 
+                className={`hamburger-menu-btn ${isMenuOpen ? 'active' : ''}`}
+                onClick={() => setIsMenuOpen(prev => !prev)}
+                aria-label="Toggle navigation menu"
+                aria-expanded={isMenuOpen}
+              >
+                <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>
+              </button>
+
+              {/* Floating Dropdown Card (Top Left) */}
+              {isMenuOpen && (
+                <div className="nav-dropdown-menu">
+                  <a 
+                    className="nav-dropdown-item" 
+                    href="#about"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <span className="material-symbols-outlined item-icon">info</span>
+                    <span>About Us</span>
+                  </a>
+                  <a 
+                    className="nav-dropdown-item" 
+                    href="#accommodation"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <span className="material-symbols-outlined item-icon">bed</span>
+                    <span>Accommodation</span>
+                  </a>
+                  <a 
+                    className="nav-dropdown-item" 
+                    href="#facilities"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <span className="material-symbols-outlined item-icon">wifi</span>
+                    <span>Facilities</span>
+                  </a>
+                  <a 
+                    className="nav-dropdown-item" 
+                    href="#reviews"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <span className="material-symbols-outlined item-icon">star</span>
+                    <span>Guest Reviews</span>
+                  </a>
+                  <a 
+                    className="nav-dropdown-item" 
+                    href="#gallery"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <span className="material-symbols-outlined item-icon">photo_library</span>
+                    <span>Gallery</span>
+                  </a>
+                  <a 
+                    className="nav-dropdown-item" 
+                    href="#host"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <span className="material-symbols-outlined item-icon">face</span>
+                    <span>Meet Your Host</span>
+                  </a>
+                  <div className="dropdown-divider"></div>
+                  <a 
+                    className="nav-dropdown-item contact-item" 
+                    href="#contact"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <span className="material-symbols-outlined item-icon">mail</span>
+                    <span>Contact Us</span>
+                  </a>
+                </div>
+              )}
+
               <img 
                 alt="Madhuban Logo" 
                 className="logo-img" 
@@ -40,6 +130,7 @@ function HomePage() {
               />
               <WeatherWidget />
             </div>
+
             <div className="flex items-center gap-md">
               <a
                 href="https://maps.app.goo.gl/WDtcm3HDFhrHF83T6"
@@ -63,15 +154,6 @@ function HomePage() {
               </a>
             </div>
           </div>
-          <nav className="header-nav">
-            <a className="font-headline label-md text-on-surface-variant nav-link" href="#about">About</a>
-            <a className="font-headline label-md text-on-surface-variant nav-link" href="#accommodation">Accommodation</a>
-            <a className="font-headline label-md text-on-surface-variant nav-link" href="#facilities">Facilities</a>
-            <a className="font-headline label-md text-on-surface-variant nav-link" href="#reviews">Reviews</a>
-            <a className="font-headline label-md text-on-surface-variant nav-link" href="#gallery">Gallery</a>
-            <a className="font-headline label-md text-on-surface-variant nav-link" href="#host">Meet Your Host</a>
-            <a className="font-headline label-md text-on-surface-variant nav-link" href="#contact">Contact Us</a>
-          </nav>
         </div>
       </header>
 

@@ -64,10 +64,11 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
   const [loading, setLoading] = useState(true);
   const [filterRoom, setFilterRoom] = useState<string>(roomId || 'all');
   
-  // Modals
+  // Modals & Editing
   const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
   const [isAllReviewsModalOpen, setIsAllReviewsModalOpen] = useState(false);
   const [selectedDetailReview, setSelectedDetailReview] = useState<Review | null>(null);
+  const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Form State
@@ -88,6 +89,38 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
 
   // Carousel ref
   const carouselRef = useRef<HTMLDivElement>(null);
+
+  const openNewReviewModal = () => {
+    setEditingReview(null);
+    setName('');
+    setSelectedRoom(roomId || 'overall');
+    setRating(5);
+    setCleanliness(5);
+    setAccuracy(5);
+    setCheckIn(5);
+    setCommunication(5);
+    setLocationRating(5);
+    setValueRating(5);
+    setComment('');
+    setFormError('');
+    setIsWriteModalOpen(true);
+  };
+
+  const openEditReviewModal = (rev: Review) => {
+    setEditingReview(rev);
+    setName(rev.name);
+    setSelectedRoom(rev.room_id || 'overall');
+    setRating(rev.rating || 5);
+    setCleanliness(rev.cleanliness || 5);
+    setAccuracy(rev.accuracy || 5);
+    setCheckIn(rev.check_in || 5);
+    setCommunication(rev.communication || 5);
+    setLocationRating(rev.location || 5);
+    setValueRating(rev.value || 5);
+    setComment(rev.comment || '');
+    setFormError('');
+    setIsWriteModalOpen(true);
+  };
 
   const fetchReviews = useCallback(async () => {
     setLoading(true);
@@ -133,8 +166,14 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
 
     setIsSubmitting(true);
     try {
-      const res = await fetch(`${import.meta.env.BASE_URL}api/reviews`, {
-        method: 'POST',
+      const isEditing = Boolean(editingReview);
+      const url = isEditing
+        ? `${import.meta.env.BASE_URL}api/reviews/${editingReview!.id}`
+        : `${import.meta.env.BASE_URL}api/reviews`;
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: name.trim(),
@@ -151,21 +190,26 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
       });
 
       if (res.ok) {
+        const updatedData = await res.json();
         setSubmitSuccess(true);
         setTimeout(() => {
           setIsWriteModalOpen(false);
           setSubmitSuccess(false);
+          setEditingReview(null);
           setName('');
           setComment('');
           setRating(5);
           fetchReviews();
+          if (selectedDetailReview && selectedDetailReview.id === updatedData.id) {
+            setSelectedDetailReview(updatedData);
+          }
         }, 1200);
       } else {
         const errData = await res.json();
-        setFormError(errData.error || 'Failed to submit review.');
+        setFormError(errData.error || 'Failed to save review.');
       }
     } catch (err) {
-      console.error('Error submitting review:', err);
+      console.error('Error saving review:', err);
       setFormError('Network error. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -209,7 +253,7 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
           <div style={{ marginTop: '16px' }}>
             <button 
               className="btn-primary write-review-btn-compact"
-              onClick={() => setIsWriteModalOpen(true)}
+              onClick={openNewReviewModal}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px', marginRight: '6px' }}>rate_review</span>
               Write a Review
@@ -307,7 +351,7 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
         ) : carouselReviews.length === 0 ? (
           <div className="reviews-empty">
             <p className="body-lg text-on-surface-variant">No reviews yet for this filter.</p>
-            <button className="btn-primary" style={{ marginTop: '16px' }} onClick={() => setIsWriteModalOpen(true)}>
+            <button className="btn-primary" style={{ marginTop: '16px' }} onClick={openNewReviewModal}>
               Be the first to write a review
             </button>
           </div>
@@ -340,9 +384,19 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
                         <h3 className="font-headline label-md reviewer-name">{rev.name}</h3>
                         <span className="body-sm text-on-surface-variant reviewer-sub">Guest at Madhuban</span>
                       </div>
-                      <span className="room-badge label-sm">
-                        {ROOM_NAMES[rev.room_id] || 'Verified Stay'}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span className="room-badge label-sm">
+                          {ROOM_NAMES[rev.room_id] || 'Verified Stay'}
+                        </span>
+                        <button 
+                          className="review-edit-btn"
+                          onClick={(e) => { e.stopPropagation(); openEditReviewModal(rev); }}
+                          title="Edit feedback"
+                          aria-label="Edit feedback"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>edit</span>
+                        </button>
+                      </div>
                     </div>
 
                     <div className="review-card-subline">
@@ -456,9 +510,19 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
                         <h3 className="font-headline label-md reviewer-name">{rev.name}</h3>
                         <span className="body-sm text-on-surface-variant">{formatDate(rev.created_at)}</span>
                       </div>
-                      <span className="room-badge label-sm">
-                        {ROOM_NAMES[rev.room_id] || 'Verified Stay'}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span className="room-badge label-sm">
+                          {ROOM_NAMES[rev.room_id] || 'Verified Stay'}
+                        </span>
+                        <button 
+                          className="review-edit-btn"
+                          onClick={(e) => { e.stopPropagation(); openEditReviewModal(rev); }}
+                          title="Edit feedback"
+                          aria-label="Edit feedback"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>edit</span>
+                        </button>
+                      </div>
                     </div>
                     <div className="review-stars-mini" style={{ margin: '8px 0' }}>
                       {[1, 2, 3, 4, 5].map((star) => (
@@ -470,7 +534,7 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
                         </span>
                       ))}
                     </div>
-                    <p className="body-md text-on-surface-variant">{rev.comment}</p>
+                    <p className="body-md text-on-surface-variant" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{rev.comment}</p>
                   </div>
                 ))
               )}
@@ -479,7 +543,7 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
         </div>
       )}
 
-      {/* "WRITE A REVIEW" MODAL */}
+      {/* "WRITE / EDIT A REVIEW" MODAL */}
       {isWriteModalOpen && (
         <div className="review-modal-backdrop" onClick={() => setIsWriteModalOpen(false)}>
           <div className="review-modal-card" onClick={(e) => e.stopPropagation()}>
@@ -494,16 +558,20 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
             {submitSuccess ? (
               <div className="review-success-state">
                 <span className="material-symbols-outlined success-icon">check_circle</span>
-                <h3 className="font-headline headline-md text-primary">Thank you for your feedback!</h3>
-                <p className="body-md text-on-surface-variant">Your review has been successfully published.</p>
+                <h3 className="font-headline headline-md text-primary">
+                  {editingReview ? 'Review updated successfully!' : 'Thank you for your feedback!'}
+                </h3>
+                <p className="body-md text-on-surface-variant">
+                  {editingReview ? 'Your changes have been saved.' : 'Your review has been successfully published.'}
+                </p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="review-form">
                 <h2 className="font-headline headline-sm text-primary" style={{ marginBottom: '8px' }}>
-                  Share your experience
+                  {editingReview ? 'Edit your review' : 'Share your experience'}
                 </h2>
                 <p className="body-sm text-on-surface-variant" style={{ marginBottom: '24px' }}>
-                  Help future guests learn about staying at Madhuban Homestay.
+                  {editingReview ? 'Update your ratings and feedback for Madhuban Homestay.' : 'Help future guests learn about staying at Madhuban Homestay.'}
                 </p>
 
                 {formError && (
@@ -681,7 +749,20 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
               {selectedDetailReview.comment}
             </div>
 
-            <div style={{ marginTop: '24px', textAlign: 'right' }}>
+            <div className="modal-actions flex justify-between items-center" style={{ marginTop: '24px' }}>
+              <button 
+                type="button"
+                className="filter-pill"
+                onClick={() => {
+                  const revToEdit = selectedDetailReview;
+                  setSelectedDetailReview(null);
+                  openEditReviewModal(revToEdit);
+                }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>edit</span>
+                Edit Feedback
+              </button>
               <button className="btn-primary" onClick={() => setSelectedDetailReview(null)}>
                 Close
               </button>

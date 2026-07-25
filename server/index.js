@@ -244,6 +244,78 @@ app.post('/api/reviews', (req, res) => {
   }
 });
 
+// PUT /api/reviews/:id
+app.put('/api/reviews/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      name,
+      roomId = 'overall',
+      rating,
+      cleanliness = 5,
+      accuracy = 5,
+      checkIn = 5,
+      communication = 5,
+      location = 5,
+      value = 5,
+      comment
+    } = req.body;
+
+    if (!name || !rating || !comment) {
+      return res.status(400).json({ error: 'Name, rating, and comment are required fields.' });
+    }
+
+    const checkStmt = db.prepare('SELECT * FROM reviews WHERE id = ?');
+    const existing = checkStmt.get(id);
+    if (!existing) {
+      return res.status(404).json({ error: 'Review not found.' });
+    }
+
+    const numRating = Math.min(5, Math.max(1, parseInt(rating, 10)));
+    const stmt = db.prepare(`
+      UPDATE reviews 
+      SET room_id = ?, name = ?, rating = ?, cleanliness = ?, accuracy = ?, check_in = ?, communication = ?, location = ?, value = ?, comment = ?
+      WHERE id = ?
+    `);
+
+    stmt.run(
+      roomId,
+      name.trim(),
+      numRating,
+      parseInt(cleanliness, 10),
+      parseInt(accuracy, 10),
+      parseInt(checkIn, 10),
+      parseInt(communication, 10),
+      parseInt(location, 10),
+      parseInt(value, 10),
+      comment.trim(),
+      id
+    );
+
+    const updatedReview = checkStmt.get(id);
+    res.json(updatedReview);
+  } catch (err) {
+    console.error('Error updating review:', err);
+    res.status(500).json({ error: 'Failed to update review' });
+  }
+});
+
+// DELETE /api/reviews/:id
+app.delete('/api/reviews/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const stmt = db.prepare('DELETE FROM reviews WHERE id = ?');
+    const result = stmt.run(id);
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Review not found.' });
+    }
+    res.json({ success: true, id: Number(id) });
+  } catch (err) {
+    console.error('Error deleting review:', err);
+    res.status(500).json({ error: 'Failed to delete review' });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Reviews API Server listening on port ${PORT}`);
