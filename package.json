@@ -13,6 +13,7 @@
   "dependencies": {
     "@lordicon/react": "^1.11.0",
     "@meteocons/lottie": "^0.1.0",
+    "@vercel/analytics": "^2.0.1",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "lottie-web": "^5.13.0",
