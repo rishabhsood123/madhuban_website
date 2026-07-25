@@ -1,0 +1,333 @@
+export interface ReviewItem {
+  id: number;
+  room_id: string;
+  name: string;
+  rating: number;
+  cleanliness: number;
+  accuracy: number;
+  check_in: number;
+  communication: number;
+  location: number;
+  value: number;
+  comment: string;
+  created_at: string;
+}
+
+// In-memory initial seed store for serverless fallback
+let inMemoryReviews: ReviewItem[] = [
+  {
+    id: 1,
+    room_id: 'orchard-room',
+    name: 'Rahul Sharma',
+    rating: 5,
+    cleanliness: 5,
+    accuracy: 5,
+    check_in: 5,
+    communication: 5,
+    location: 5,
+    value: 5,
+    comment: 'Loved waking up right in the middle of apple orchards! Madhu ji\'s breakfasts were unforgettable — fresh, warm, and delicious. Clean, peaceful, and the private sit-out area is unmatched.',
+    created_at: '2026-05-14 10:30:00'
+  },
+  {
+    id: 2,
+    room_id: 'valley-room',
+    name: 'Ananya Roy',
+    rating: 5,
+    cleanliness: 5,
+    accuracy: 5,
+    check_in: 5,
+    communication: 5,
+    location: 5,
+    value: 5,
+    comment: 'The valley view from the bedroom window is out of this world. Watching the sunrise over the Himalayan peaks with chai in hand was pure bliss.',
+    created_at: '2026-06-02 14:15:00'
+  },
+  {
+    id: 3,
+    room_id: 'attic-stay',
+    name: 'Vikram & Priyal',
+    rating: 5,
+    cleanliness: 5,
+    accuracy: 4,
+    check_in: 5,
+    communication: 5,
+    location: 4,
+    value: 5,
+    comment: 'Such a cozy, snug attic stay under the wooden A-frame roof. Stargazing through the skylight window at night was magical. Extremely welcoming host family!',
+    created_at: '2026-06-20 18:45:00'
+  },
+  {
+    id: 4,
+    room_id: 'orchard-room',
+    name: 'Devansh Gupta',
+    rating: 5,
+    cleanliness: 5,
+    accuracy: 5,
+    check_in: 5,
+    communication: 5,
+    location: 5,
+    value: 4,
+    comment: 'Super clean rooms, crisp mountain air, and authentic home-cooked Himachali meals. Felt like staying with close relatives. Highly recommended for nature lovers!',
+    created_at: '2026-07-08 11:20:00'
+  },
+  {
+    id: 5,
+    room_id: 'valley-room',
+    name: 'Meera Nair',
+    rating: 4,
+    cleanliness: 4,
+    accuracy: 5,
+    check_in: 5,
+    communication: 5,
+    location: 5,
+    value: 4,
+    comment: 'Peaceful retreat away from tourist crowds in Manali. The soothing sound of the Fozal river nearby and the host\'s genuine hospitality made our trip truly memorable.',
+    created_at: '2026-07-18 16:05:00'
+  },
+  {
+    id: 6,
+    room_id: 'attic-stay',
+    name: 'Siddharth Verma',
+    rating: 5,
+    cleanliness: 5,
+    accuracy: 5,
+    check_in: 5,
+    communication: 5,
+    location: 5,
+    value: 5,
+    comment: 'Architectural masterpiece! The wooden interiors smelled wonderful, and sleeping under the slanted wooden roof felt like living in a fairyland cabin.',
+    created_at: '2026-07-01 09:15:00'
+  },
+  {
+    id: 7,
+    room_id: 'orchard-room',
+    name: 'Gehena Kapoor',
+    rating: 5,
+    cleanliness: 5,
+    accuracy: 5,
+    check_in: 5,
+    communication: 5,
+    location: 5,
+    value: 5,
+    comment: 'Very clean and spacious home. The interiors are beautifully done too. Kitchen was equipped with all appliances needed. The host was also very responsive and helpful.',
+    created_at: '2026-06-15 17:20:00'
+  },
+  {
+    id: 8,
+    room_id: 'valley-room',
+    name: 'Karan Mehta',
+    rating: 5,
+    cleanliness: 5,
+    accuracy: 5,
+    check_in: 5,
+    communication: 5,
+    location: 5,
+    value: 5,
+    comment: 'Unbelievable hospitality! Madhu aunty prepared traditional Siddu and local Himachali dishes for us. The views from the Valley Room balcony are breathtaking.',
+    created_at: '2026-06-28 13:40:00'
+  },
+  {
+    id: 9,
+    room_id: 'overall',
+    name: 'Pooja & Rohan',
+    rating: 5,
+    cleanliness: 5,
+    accuracy: 5,
+    check_in: 5,
+    communication: 5,
+    location: 5,
+    value: 5,
+    comment: 'We spent 4 days at Madhuban and didn\'t want to leave! The evening campfire under a starry sky surrounded by plum trees was the highlight of our Himachal trip.',
+    created_at: '2026-07-10 20:10:00'
+  },
+  {
+    id: 10,
+    room_id: 'orchard-room',
+    name: 'Amitabh Sen',
+    rating: 5,
+    cleanliness: 5,
+    accuracy: 5,
+    check_in: 5,
+    communication: 5,
+    location: 5,
+    value: 4,
+    comment: 'Ideal place for remote work or a digital detox. High speed Wi-Fi in the orchards, serene environment, and delicious home-cooked meals every day.',
+    created_at: '2026-07-12 12:00:00'
+  },
+  {
+    id: 11,
+    room_id: 'valley-room',
+    name: 'Sneha Kulkarni',
+    rating: 5,
+    cleanliness: 5,
+    accuracy: 5,
+    check_in: 5,
+    communication: 5,
+    location: 5,
+    value: 5,
+    comment: 'The morning birdsong and mountain breeze make this homestay an absolute gem. Clean, pristine, and surrounded by fruit orchards.',
+    created_at: '2026-07-15 08:30:00'
+  },
+  {
+    id: 12,
+    room_id: 'attic-stay',
+    name: 'Tushar Joshi',
+    rating: 5,
+    cleanliness: 5,
+    accuracy: 5,
+    check_in: 5,
+    communication: 5,
+    location: 5,
+    value: 5,
+    comment: 'Unique experience staying in an A-frame attic. The skylight view of stars at night is unmatched. Madhu Ji makes the best parathas!',
+    created_at: '2026-07-20 19:10:00'
+  }
+];
+
+let nextId = 13;
+
+function computeStats(reviews: ReviewItem[]) {
+  if (reviews.length === 0) {
+    return {
+      total: 0,
+      average: 5.0,
+      cleanliness: 5.0,
+      accuracy: 5.0,
+      checkIn: 5.0,
+      communication: 5.0,
+      location: 5.0,
+      value: 5.0
+    };
+  }
+  const sum = (key: keyof ReviewItem) => reviews.reduce((acc, item) => acc + (Number(item[key]) || 5), 0);
+  return {
+    total: reviews.length,
+    average: Number((sum('rating') / reviews.length).toFixed(2)),
+    cleanliness: Number((sum('cleanliness') / reviews.length).toFixed(1)),
+    accuracy: Number((sum('accuracy') / reviews.length).toFixed(1)),
+    checkIn: Number((sum('check_in') / reviews.length).toFixed(1)),
+    communication: Number((sum('communication') / reviews.length).toFixed(1)),
+    location: Number((sum('location') / reviews.length).toFixed(1)),
+    value: Number((sum('value') / reviews.length).toFixed(1))
+  };
+}
+
+export default async function handler(req: any, res: any) {
+  // Enable CORS
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  const { method } = req;
+  const urlParts = (req.url || '').split('?');
+  const queryParams = new URLSearchParams(urlParts[1] || '');
+  const roomIdParam = req.query?.roomId || queryParams.get('roomId');
+
+  try {
+    if (method === 'GET') {
+      let filtered = inMemoryReviews;
+      if (roomIdParam && roomIdParam !== 'all') {
+        filtered = inMemoryReviews.filter(
+          (r) => r.room_id === roomIdParam || r.room_id === 'overall'
+        );
+      }
+      // Sort newest first
+      const sorted = [...filtered].sort((a, b) => b.id - a.id);
+      const stats = computeStats(inMemoryReviews);
+
+      return res.status(200).json({
+        reviews: sorted,
+        stats
+      });
+    }
+
+    if (method === 'POST') {
+      const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
+      const {
+        name,
+        roomId = 'overall',
+        rating = 5,
+        cleanliness = 5,
+        accuracy = 5,
+        checkIn = 5,
+        communication = 5,
+        location = 5,
+        value = 5,
+        comment
+      } = body;
+
+      if (!name || !comment) {
+        return res.status(400).json({ error: 'Name and comment are required.' });
+      }
+
+      const newReview: ReviewItem = {
+        id: nextId++,
+        room_id: roomId,
+        name: name.trim(),
+        rating: Math.min(5, Math.max(1, parseInt(rating, 10))),
+        cleanliness: parseInt(cleanliness, 10) || 5,
+        accuracy: parseInt(accuracy, 10) || 5,
+        check_in: parseInt(checkIn, 10) || 5,
+        communication: parseInt(communication, 10) || 5,
+        location: parseInt(location, 10) || 5,
+        value: parseInt(value, 10) || 5,
+        comment: comment.trim(),
+        created_at: new Date().toISOString().replace('T', ' ').substring(0, 19)
+      };
+
+      inMemoryReviews.unshift(newReview);
+      return res.status(201).json(newReview);
+    }
+
+    if (method === 'PUT') {
+      const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
+      // Get ID from path or body
+      const pathIdStr = (req.url || '').split('/').pop()?.split('?')[0];
+      const targetId = parseInt(req.query?.id || pathIdStr || body.id, 10);
+
+      const index = inMemoryReviews.findIndex((r) => r.id === targetId);
+      if (index === -1) {
+        return res.status(404).json({ error: 'Review not found.' });
+      }
+
+      const updated: ReviewItem = {
+        ...inMemoryReviews[index],
+        room_id: body.roomId || inMemoryReviews[index].room_id,
+        name: body.name ? body.name.trim() : inMemoryReviews[index].name,
+        rating: body.rating ? Math.min(5, Math.max(1, parseInt(body.rating, 10))) : inMemoryReviews[index].rating,
+        cleanliness: body.cleanliness ? parseInt(body.cleanliness, 10) : inMemoryReviews[index].cleanliness,
+        accuracy: body.accuracy ? parseInt(body.accuracy, 10) : inMemoryReviews[index].accuracy,
+        check_in: body.checkIn ? parseInt(body.checkIn, 10) : inMemoryReviews[index].check_in,
+        communication: body.communication ? parseInt(body.communication, 10) : inMemoryReviews[index].communication,
+        location: body.location ? parseInt(body.location, 10) : inMemoryReviews[index].location,
+        value: body.value ? parseInt(body.value, 10) : inMemoryReviews[index].value,
+        comment: body.comment ? body.comment.trim() : inMemoryReviews[index].comment
+      };
+
+      inMemoryReviews[index] = updated;
+      return res.status(200).json(updated);
+    }
+
+    if (method === 'DELETE') {
+      const pathIdStr = (req.url || '').split('/').pop()?.split('?')[0];
+      const targetId = parseInt(req.query?.id || pathIdStr, 10);
+
+      inMemoryReviews = inMemoryReviews.filter((r) => r.id !== targetId);
+      return res.status(200).json({ success: true, id: targetId });
+    }
+
+    return res.status(455).json({ error: `Method ${method} Not Allowed` });
+  } catch (err: any) {
+    console.error('API Error:', err);
+    return res.status(500).json({ error: err.message || 'Internal Server Error' });
+  }
+}
