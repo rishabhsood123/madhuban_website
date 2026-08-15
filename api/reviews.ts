@@ -357,6 +357,126 @@ export default async function handler(req: any, res: any) {
           ]
         });
 
+    // Admin authentication helper
+    const ADMIN_KEY = process.env.ADMIN_KEY || 'madhuban123';
+    const reqAdminKey = req.headers['x-admin-key'] || (req.query as any)?.adminKey;
+    const isAdmin = reqAdminKey === ADMIN_KEY;
+
+    if (req.url?.includes('/api/admin/verify')) {
+      if (isAdmin) {
+        return res.status(200).json({ success: true, message: 'Admin passcode verified' });
+      }
+      return res.status(401).json({ error: 'Invalid admin passcode' });
+    }
+
+    const includeHidden = (req.query as any)?.includeHidden === 'true' && isAdmin;
+
+    // Check Turso database first if configured
+    if (turso) {
+      if (method === 'GET') {
+        let query = "SELECT * FROM reviews";
+        const args: any[] = [];
+
+        const conditions: string[] = [];
+        if (!includeHidden) {
+          conditions.push("(is_hidden = 0 OR is_hidden IS NULL)");
+        }
+        if (roomIdParam && roomIdParam !== 'all') {
+          conditions.push("(room_id = ? OR room_id = 'overall')");
+          args.push(roomIdParam);
+        }
+
+        if (conditions.length > 0) {
+          query += " WHERE " + conditions.join(" AND ");
+        }
+        query += " ORDER BY id DESC";
+
+        const reviewsRes = await turso.execute({ sql: query, args });
+        const allRes = await turso.execute({ sql: "SELECT * FROM reviews WHERE (is_hidden = 0 OR is_hidden IS NULL)", args: [] });
+
+        const reviews = reviewsRes.rows as unknown as ReviewItem[];
+        const allReviews = allRes.rows as unknown as ReviewItem[];
+        const stats = computeStats(allReviews);
+
+        return res.status(200).json({ reviews, stats });
+      }
+
+      if (method === 'POST' && req.url?.includes('/restore')) {
+        if (!isAdmin) return res.status(401).json({ error: 'Unauthorized: Invalid Admin Passcode' });
+        const pathParts = (req.url || '').split('/');
+        const targetId = parseInt(pathParts[pathParts.indexOf('reviews') + 1] || (req.query as any)?.id, 10);
+        await turso.execute({
+          sql: "UPDATE reviews SET is_hidden = 0 WHERE id = ?",
+          args: [targetId]
+        });
+        return res.status(200).json({ success: true, id: targetId, is_hidden: 0 });
+      }
+
+      if (method === 'POST') {
+        const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
+        const {
+          name,
+          roomId = 'overall',
+          rating = 5,
+          cleanliness = 5,
+          accuracy = 5,
+          checkIn = 5,
+          communication = 5,
+          location = 5,
+          value = 5,
+          comment
+        } = body;
+
+        if (!name || !comment) {
+          return res.status(400).json({ error: 'Name and comment are required.' });
+        }
+
+        const insertRes = await turso.execute({
+          sql: `INSERT INTO reviews (room_id, name, rating, cleanliness, accuracy, check_in, communication, location, value, comment, is_hidden)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+                RETURNING *`,
+          args: [
+            roomId,
+            name.trim(),
+            Math.min(5, Math.max(1, parseInt(rating, 10))),
+            parseInt(cleanliness, 10) || 5,
+            parseInt(accuracy, 10) || 5,
+            parseInt(checkIn, 10) || 5,
+            parseInt(communication, 10) || 5,
+            parseInt(location, 10) || 5,
+            parseInt(value, 10) || 5,
+            comment.trim()
+          ]
+        });
+
+        return res.status(201).json(insertRes.rows[0]);
+      }
+
+      if (method === 'PUT') {
+        if (!isAdmin) return res.status(401).json({ error: 'Unauthorized: Invalid Admin Passcode' });
+        const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
+        const pathIdStr = (req.url || '').split('/').pop()?.split('?')[0];
+        const targetId = parseInt((req.query as any)?.id || pathIdStr || body.id, 10);
+
+        await turso.execute({
+          sql: `UPDATE reviews 
+                SET room_id = ?, name = ?, rating = ?, cleanliness = ?, accuracy = ?, check_in = ?, communication = ?, location = ?, value = ?, comment = ?
+                WHERE id = ?`,
+          args: [
+            body.roomId || 'overall',
+            (body.name || '').trim(),
+            Math.min(5, Math.max(1, parseInt(body.rating, 10))) || 5,
+            parseInt(body.cleanliness, 10) || 5,
+            parseInt(body.accuracy, 10) || 5,
+            parseInt(body.checkIn, 10) || 5,
+            parseInt(body.communication, 10) || 5,
+            parseInt(body.location, 10) || 5,
+            parseInt(body.value, 10) || 5,
+            (body.comment || '').trim(),
+            targetId
+          ]
+        });
+
         const fetchRes = await turso.execute({
           sql: "SELECT * FROM reviews WHERE id = ?",
           args: [targetId]
@@ -366,29 +486,45 @@ export default async function handler(req: any, res: any) {
       }
 
       if (method === 'DELETE') {
+        if (!isAdmin) return res.status(401).json({ error: 'Unauthorized: Invalid Admin Passcode' });
         const pathIdStr = (req.url || '').split('/').pop()?.split('?')[0];
-        const targetId = parseInt(req.query?.id || pathIdStr, 10);
+        const targetId = parseInt((req.query as any)?.id || pathIdStr, 10);
 
         await turso.execute({
-          sql: "DELETE FROM reviews WHERE id = ?",
+          sql: "UPDATE reviews SET is_hidden = 1 WHERE id = ?",
           args: [targetId]
         });
 
-        return res.status(200).json({ success: true, id: targetId });
+        return res.status(200).json({ success: true, id: targetId, is_hidden: 1 });
       }
     }
 
     // In-Memory Fallback if no TURSO_DATABASE_URL is set
     if (method === 'GET') {
       let filtered = inMemoryReviews;
+      if (!includeHidden) {
+        filtered = filtered.filter((r) => !r.is_hidden);
+      }
       if (roomIdParam && roomIdParam !== 'all') {
-        filtered = inMemoryReviews.filter(
+        filtered = filtered.filter(
           (r) => r.room_id === roomIdParam || r.room_id === 'overall'
         );
       }
       const sorted = [...filtered].sort((a, b) => b.id - a.id);
-      const stats = computeStats(inMemoryReviews);
+      const activeReviews = inMemoryReviews.filter((r) => !r.is_hidden);
+      const stats = computeStats(activeReviews);
       return res.status(200).json({ reviews: sorted, stats });
+    }
+
+    if (method === 'POST' && req.url?.includes('/restore')) {
+      if (!isAdmin) return res.status(401).json({ error: 'Unauthorized: Invalid Admin Passcode' });
+      const pathParts = (req.url || '').split('/');
+      const targetId = parseInt(pathParts[pathParts.indexOf('reviews') + 1] || (req.query as any)?.id, 10);
+      const index = inMemoryReviews.findIndex((r) => r.id === targetId);
+      if (index !== -1) {
+        inMemoryReviews[index].is_hidden = 0;
+      }
+      return res.status(200).json({ success: true, id: targetId, is_hidden: 0 });
     }
 
     if (method === 'POST') {
@@ -410,7 +546,7 @@ export default async function handler(req: any, res: any) {
         return res.status(400).json({ error: 'Name and comment are required.' });
       }
 
-      const newReview: ReviewItem = {
+      const newReview: ReviewItem & { is_hidden?: number } = {
         id: nextId++,
         room_id: roomId,
         name: name.trim(),
@@ -422,7 +558,8 @@ export default async function handler(req: any, res: any) {
         location: parseInt(location, 10) || 5,
         value: parseInt(value, 10) || 5,
         comment: comment.trim(),
-        created_at: new Date().toISOString().replace('T', ' ').substring(0, 19)
+        created_at: new Date().toISOString().replace('T', ' ').substring(0, 19),
+        is_hidden: 0
       };
 
       inMemoryReviews.unshift(newReview);
@@ -430,16 +567,17 @@ export default async function handler(req: any, res: any) {
     }
 
     if (method === 'PUT') {
+      if (!isAdmin) return res.status(401).json({ error: 'Unauthorized: Invalid Admin Passcode' });
       const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
       const pathIdStr = (req.url || '').split('/').pop()?.split('?')[0];
-      const targetId = parseInt(req.query?.id || pathIdStr || body.id, 10);
+      const targetId = parseInt((req.query as any)?.id || pathIdStr || body.id, 10);
 
       const index = inMemoryReviews.findIndex((r) => r.id === targetId);
       if (index === -1) {
         return res.status(404).json({ error: 'Review not found.' });
       }
 
-      const updated: ReviewItem = {
+      const updated: ReviewItem & { is_hidden?: number } = {
         ...inMemoryReviews[index],
         room_id: body.roomId || inMemoryReviews[index].room_id,
         name: body.name ? body.name.trim() : inMemoryReviews[index].name,
@@ -458,10 +596,14 @@ export default async function handler(req: any, res: any) {
     }
 
     if (method === 'DELETE') {
+      if (!isAdmin) return res.status(401).json({ error: 'Unauthorized: Invalid Admin Passcode' });
       const pathIdStr = (req.url || '').split('/').pop()?.split('?')[0];
-      const targetId = parseInt(req.query?.id || pathIdStr, 10);
-      inMemoryReviews = inMemoryReviews.filter((r) => r.id !== targetId);
-      return res.status(200).json({ success: true, id: targetId });
+      const targetId = parseInt((req.query as any)?.id || pathIdStr, 10);
+      const index = inMemoryReviews.findIndex((r) => r.id === targetId);
+      if (index !== -1) {
+        inMemoryReviews[index].is_hidden = 1;
+      }
+      return res.status(200).json({ success: true, id: targetId, is_hidden: 1 });
     }
 
     return res.status(405).json({ error: `Method ${method} Not Allowed` });
@@ -470,3 +612,4 @@ export default async function handler(req: any, res: any) {
     return res.status(500).json({ error: err.message || 'Internal Server Error' });
   }
 }
+

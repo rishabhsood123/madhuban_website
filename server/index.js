@@ -140,21 +140,56 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Add is_hidden column if it doesn't exist
+try {
+  db.exec('ALTER TABLE reviews ADD COLUMN is_hidden INTEGER DEFAULT 0');
+} catch (e) {
+  // Column already exists, ignore error
+}
+
+const ADMIN_KEY = process.env.ADMIN_KEY || 'madhuban123';
+
+function verifyAdminKey(req) {
+  const key = req.headers['x-admin-key'] || req.query?.adminKey;
+  return key === ADMIN_KEY;
+}
+
+// POST /api/admin/verify - Verify admin passcode
+app.post('/api/admin/verify', (req, res) => {
+  if (verifyAdminKey(req)) {
+    return res.json({ success: true, message: 'Admin passcode verified' });
+  }
+  return res.status(401).json({ error: 'Invalid admin passcode' });
+});
+
 // GET /api/reviews
 app.get('/api/reviews', (req, res) => {
   try {
     const roomId = req.query.roomId;
+    const isAdmin = verifyAdminKey(req);
+    const includeHidden = req.query.includeHidden === 'true' && isAdmin;
+
     let reviews;
-    if (roomId && roomId !== 'all') {
-      const stmt = db.prepare("SELECT * FROM reviews WHERE room_id = ? OR room_id = 'overall' ORDER BY id DESC");
-      reviews = stmt.all(roomId);
+    if (includeHidden) {
+      if (roomId && roomId !== 'all') {
+        const stmt = db.prepare("SELECT * FROM reviews WHERE (room_id = ? OR room_id = 'overall') ORDER BY id DESC");
+        reviews = stmt.all(roomId);
+      } else {
+        const stmt = db.prepare('SELECT * FROM reviews ORDER BY id DESC');
+        reviews = stmt.all();
+      }
     } else {
-      const stmt = db.prepare('SELECT * FROM reviews ORDER BY id DESC');
-      reviews = stmt.all();
+      if (roomId && roomId !== 'all') {
+        const stmt = db.prepare("SELECT * FROM reviews WHERE (room_id = ? OR room_id = 'overall') AND (is_hidden = 0 OR is_hidden IS NULL) ORDER BY id DESC");
+        reviews = stmt.all(roomId);
+      } else {
+        const stmt = db.prepare('SELECT * FROM reviews WHERE (is_hidden = 0 OR is_hidden IS NULL) ORDER BY id DESC');
+        reviews = stmt.all();
+      }
     }
 
-    // Compute stats across all reviews
-    const allStmt = db.prepare('SELECT * FROM reviews');
+    // Compute stats across non-hidden reviews
+    const allStmt = db.prepare('SELECT * FROM reviews WHERE (is_hidden = 0 OR is_hidden IS NULL)');
     const allReviews = allStmt.all();
 
     let avgRating = 5;
@@ -217,8 +252,8 @@ app.post('/api/reviews', (req, res) => {
 
     const numRating = Math.min(5, Math.max(1, parseInt(rating, 10)));
     const stmt = db.prepare(`
-      INSERT INTO reviews (room_id, name, rating, cleanliness, accuracy, check_in, communication, location, value, comment)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO reviews (room_id, name, rating, cleanliness, accuracy, check_in, communication, location, value, comment, is_hidden)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
     `);
 
     const result = stmt.run(
@@ -244,8 +279,12 @@ app.post('/api/reviews', (req, res) => {
   }
 });
 
-// PUT /api/reviews/:id
+// PUT /api/reviews/:id (Admin protected)
 app.put('/api/reviews/:id', (req, res) => {
+  if (!verifyAdminKey(req)) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid Admin Passcode' });
+  }
+
   try {
     const { id } = req.params;
     const {
@@ -300,19 +339,43 @@ app.put('/api/reviews/:id', (req, res) => {
   }
 });
 
-// DELETE /api/reviews/:id
+// DELETE /api/reviews/:id -> Soft Delete (is_hidden = 1) (Admin protected)
 app.delete('/api/reviews/:id', (req, res) => {
+  if (!verifyAdminKey(req)) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid Admin Passcode' });
+  }
+
   try {
     const { id } = req.params;
-    const stmt = db.prepare('DELETE FROM reviews WHERE id = ?');
+    const stmt = db.prepare('UPDATE reviews SET is_hidden = 1 WHERE id = ?');
     const result = stmt.run(id);
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Review not found.' });
     }
-    res.json({ success: true, id: Number(id) });
+    res.json({ success: true, id: Number(id), is_hidden: 1 });
   } catch (err) {
-    console.error('Error deleting review:', err);
-    res.status(500).json({ error: 'Failed to delete review' });
+    console.error('Error hiding review:', err);
+    res.status(500).json({ error: 'Failed to hide review' });
+  }
+});
+
+// POST /api/reviews/:id/restore -> Unhide review (is_hidden = 0) (Admin protected)
+app.post('/api/reviews/:id/restore', (req, res) => {
+  if (!verifyAdminKey(req)) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid Admin Passcode' });
+  }
+
+  try {
+    const { id } = req.params;
+    const stmt = db.prepare('UPDATE reviews SET is_hidden = 0 WHERE id = ?');
+    const result = stmt.run(id);
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Review not found.' });
+    }
+    res.json({ success: true, id: Number(id), is_hidden: 0 });
+  } catch (err) {
+    console.error('Error restoring review:', err);
+    res.status(500).json({ error: 'Failed to restore review' });
   }
 });
 
@@ -320,3 +383,4 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Reviews API Server listening on port ${PORT}`);
 });
+

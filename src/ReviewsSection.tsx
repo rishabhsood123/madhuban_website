@@ -13,6 +13,7 @@ export interface Review {
   value: number;
   comment: string;
   created_at: string;
+  is_hidden?: number;
 }
 
 export interface ReviewStats {
@@ -81,6 +82,31 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
   const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Admin Mode State
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminKey, setAdminKey] = useState<string>(() => sessionStorage.getItem('madhuban_admin_key') || '');
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [adminPassInput, setAdminPassInput] = useState('');
+  const [adminPassError, setAdminPassError] = useState('');
+  const [showHiddenOnly, setShowHiddenOnly] = useState(false);
+
+  // Check for #admin in URL hash or saved key
+  useEffect(() => {
+    const checkAdminState = () => {
+      const isHashAdmin = window.location.hash === '#admin';
+      const savedKey = sessionStorage.getItem('madhuban_admin_key');
+      if (savedKey) {
+        setIsAdmin(true);
+        setAdminKey(savedKey);
+      } else if (isHashAdmin) {
+        setIsAdminModalOpen(true);
+      }
+    };
+    checkAdminState();
+    window.addEventListener('hashchange', checkAdminState);
+    return () => window.removeEventListener('hashchange', checkAdminState);
+  }, []);
+
   // Form State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -135,10 +161,22 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
   const fetchReviews = useCallback(async () => {
     setLoading(true);
     try {
-      const url = filterRoom && filterRoom !== 'all' 
-        ? `${import.meta.env.BASE_URL}api/reviews?roomId=${filterRoom}`
-        : `${import.meta.env.BASE_URL}api/reviews`;
-      const res = await fetch(url);
+      const queryParams = new URLSearchParams();
+      if (filterRoom && filterRoom !== 'all') {
+        queryParams.set('roomId', filterRoom);
+      }
+      if (isAdmin && showHiddenOnly) {
+        queryParams.set('includeHidden', 'true');
+      }
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+      const url = `${import.meta.env.BASE_URL}api/reviews${queryString}`;
+
+      const headers: Record<string, string> = {};
+      if (isAdmin && adminKey) {
+        headers['x-admin-key'] = adminKey;
+      }
+
+      const res = await fetch(url, { headers });
       if (res.ok) {
         const data = await res.json();
         setReviews(data.reviews || []);
@@ -149,11 +187,78 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
     } finally {
       setLoading(false);
     }
-  }, [filterRoom]);
+  }, [filterRoom, isAdmin, adminKey, showHiddenOnly]);
 
   useEffect(() => {
     fetchReviews();
   }, [fetchReviews]);
+
+  // Admin Handlers
+  const handleVerifyAdminPasscode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdminPassError('');
+    try {
+      const key = adminPassInput.trim();
+      const res = await fetch(`${import.meta.env.BASE_URL}api/admin/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': key
+        }
+      });
+      if (res.ok) {
+        sessionStorage.setItem('madhuban_admin_key', key);
+        setAdminKey(key);
+        setIsAdmin(true);
+        setIsAdminModalOpen(false);
+        setAdminPassInput('');
+      } else {
+        setAdminPassError('Incorrect admin passcode. Please try again.');
+      }
+    } catch (err) {
+      setAdminPassError('Failed to verify passcode. Please check your connection.');
+    }
+  };
+
+  const handleHideReview = async (id: number) => {
+    if (!window.confirm('Are you sure you want to hide this review from public view? (Soft Delete)')) return;
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/reviews/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'x-admin-key': adminKey
+        }
+      });
+      if (res.ok) {
+        fetchReviews();
+        if (selectedDetailReview?.id === id) {
+          setSelectedDetailReview(null);
+        }
+      } else {
+        alert('Failed to hide review. Admin passcode expired or invalid.');
+      }
+    } catch (err) {
+      console.error('Error hiding review:', err);
+    }
+  };
+
+  const handleRestoreReview = async (id: number) => {
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/reviews/${id}/restore`, {
+        method: 'POST',
+        headers: {
+          'x-admin-key': adminKey
+        }
+      });
+      if (res.ok) {
+        fetchReviews();
+      } else {
+        alert('Failed to restore review.');
+      }
+    } catch (err) {
+      console.error('Error restoring review:', err);
+    }
+  };
 
   // Scroll controls for horizontal carousel
   const scrollCarousel = (direction: 'left' | 'right') => {
@@ -243,6 +348,39 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
     <section id="reviews" className="reviews-section">
       <div className="container">
         
+        {/* Admin Mode Control Banner Bar */}
+        {isAdmin && (
+          <div className="admin-banner-bar">
+            <div className="admin-banner-info">
+              <span className="material-symbols-outlined">admin_panel_settings</span>
+              <span><strong>Admin Mode Active</strong> — Only you can see this control bar</span>
+            </div>
+            <div className="admin-banner-actions">
+              <button 
+                type="button"
+                className={`filter-pill ${showHiddenOnly ? 'active' : ''}`}
+                style={{ backgroundColor: showHiddenOnly ? '#ffffff' : 'rgba(255, 255, 255, 0.15)', color: showHiddenOnly ? 'var(--primary)' : '#ffffff', border: 'none' }}
+                onClick={() => setShowHiddenOnly(prev => !prev)}
+              >
+                {showHiddenOnly ? 'Viewing Hidden Reviews' : 'Show Hidden Reviews'}
+              </button>
+              <button 
+                type="button"
+                className="admin-logout-btn"
+                onClick={() => {
+                  sessionStorage.removeItem('madhuban_admin_key');
+                  setIsAdmin(false);
+                  setAdminKey('');
+                  setShowHiddenOnly(false);
+                  window.location.hash = '';
+                }}
+              >
+                Exit Admin
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Centered Section Header matching rest of website */}
         <div className="intro-text reviews-header-text" style={{ textAlign: 'center', marginBottom: '28px' }}>
           <h2 className="font-headline headline-sm intro-title" style={{ marginBottom: '8px' }}>
@@ -395,17 +533,39 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
                         <span className="body-sm text-on-surface-variant reviewer-sub">Guest at Madhuban</span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span className="room-badge label-sm">
-                          {ROOM_NAMES[rev.room_id] || 'Verified Stay'}
+                        <span className={`room-badge label-sm ${rev.is_hidden ? 'hidden-badge' : ''}`}>
+                          {rev.is_hidden ? 'Hidden' : (ROOM_NAMES[rev.room_id] || 'Verified Stay')}
                         </span>
-                        <button 
-                          className="review-edit-btn"
-                          onClick={(e) => { e.stopPropagation(); openEditReviewModal(rev); }}
-                          title="Edit feedback"
-                          aria-label="Edit feedback"
-                        >
-                          <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>edit</span>
-                        </button>
+                        {isAdmin ? (
+                          rev.is_hidden ? (
+                            <button
+                              className="review-restore-btn"
+                              onClick={(e) => { e.stopPropagation(); handleRestoreReview(rev.id); }}
+                              title="Unhide review"
+                            >
+                              <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>visibility</span>
+                              <span>Unhide</span>
+                            </button>
+                          ) : (
+                            <button
+                              className="review-hide-btn"
+                              onClick={(e) => { e.stopPropagation(); handleHideReview(rev.id); }}
+                              title="Hide review (Soft Delete)"
+                            >
+                              <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>delete</span>
+                              <span>Hide</span>
+                            </button>
+                          )
+                        ) : (
+                          <button 
+                            className="review-edit-btn"
+                            onClick={(e) => { e.stopPropagation(); openEditReviewModal(rev); }}
+                            title="Edit feedback"
+                            aria-label="Edit feedback"
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>edit</span>
+                          </button>
+                        )}
                       </div>
                     </div>
 
@@ -777,6 +937,68 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* SECRET ADMIN PASSCODE MODAL */}
+      {isAdminModalOpen && (
+        <div className="review-modal-backdrop" onClick={() => setIsAdminModalOpen(false)}>
+          <div className="review-modal-card" style={{ maxWidth: '420px' }} onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="review-modal-close" 
+              onClick={() => setIsAdminModalOpen(false)}
+              aria-label="Close modal"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+
+            <div style={{ textAlign: 'center', padding: '12px 0 20px' }}>
+              <span className="material-symbols-outlined text-primary" style={{ fontSize: '42px', marginBottom: '8px' }}>lock</span>
+              <h2 className="font-headline headline-sm text-primary">Admin Access</h2>
+              <p className="body-sm text-on-surface-variant" style={{ marginTop: '6px' }}>
+                Enter your secret admin passcode to manage and hide reviews.
+              </p>
+            </div>
+
+            <form onSubmit={handleVerifyAdminPasscode} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {adminPassError && (
+                <div style={{ padding: '10px', backgroundColor: '#ffebee', color: '#c62828', borderRadius: '8px', fontSize: '13px' }}>
+                  {adminPassError}
+                </div>
+              )}
+
+              <div>
+                <label className="body-sm text-on-surface-variant" style={{ fontWeight: 600, display: 'block', marginBottom: '6px' }}>
+                  Secret Admin Passcode
+                </label>
+                <input
+                  type="password"
+                  className="filter-pill"
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', fontSize: '15px', border: '1px solid var(--surface-container-highest)' }}
+                  placeholder="Enter passcode..."
+                  value={adminPassInput}
+                  onChange={(e) => setAdminPassInput(e.target.value)}
+                  autoFocus
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
+                <button
+                  type="button"
+                  className="filter-pill"
+                  onClick={() => setIsAdminModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="show-all-reviews-btn"
+                  style={{ padding: '10px 24px' }}
+                >
+                  Unlock Admin
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
