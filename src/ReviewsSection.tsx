@@ -58,6 +58,16 @@ function formatDate(dateStr: string): string {
   }
 }
 
+// Helper to deterministically pick one of 4 raw handwriting font classes for a review
+function getHandwrittenFontClass(id: number | string): string {
+  const str = String(id);
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 31 + str.charCodeAt(i)) % 4;
+  }
+  return `handwritten-font-${Math.abs(hash)}`;
+}
+
 export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState<ReviewStats | null>(null);
@@ -414,7 +424,7 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
                       <span className="review-date-text">{formatDate(rev.created_at)}</span>
                     </div>
 
-                    <p className="body-md text-on-surface-variant review-comment">
+                    <p className={`body-md text-on-surface-variant review-comment ${getHandwrittenFontClass(rev.id)}`}>
                       {displayComment}
                     </p>
 
@@ -534,7 +544,7 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
                         </span>
                       ))}
                     </div>
-                    <p className="body-md text-on-surface-variant" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{rev.comment}</p>
+                    <p className={`body-md text-on-surface-variant ${getHandwrittenFontClass(rev.id)}`} style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{rev.comment}</p>
                   </div>
                 ))
               )}
@@ -745,7 +755,7 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
               ))}
             </div>
 
-            <div className="review-comment-full body-lg text-on-surface-variant" style={{ whiteSpace: 'pre-line', wordBreak: 'break-word', overflowWrap: 'anywhere', lineHeight: 1.6 }}>
+            <div className={`review-comment-full body-lg text-on-surface-variant ${getHandwrittenFontClass(selectedDetailReview.id)}`} style={{ whiteSpace: 'pre-line', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
               {selectedDetailReview.comment}
             </div>
 

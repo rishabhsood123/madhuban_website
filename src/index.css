@@ -2409,3 +2409,38 @@ body {
     padding-bottom: 80px;
   }
 }
+
+/* =============================================
+   Raw Handwriting Fonts for Review Comments
+   ============================================= */
+.handwritten-font-0 {
+  font-family: 'Reenie Beanie', cursive;
+  font-size: 1.5rem;
+  line-height: 1.35;
+  color: var(--on-surface);
+  letter-spacing: 0.02em;
+}
+
+.handwritten-font-1 {
+  font-family: 'Nothing You Could Do', cursive;
+  font-size: 1.2rem;
+  line-height: 1.45;
+  color: var(--on-surface);
+  letter-spacing: 0.01em;
+}
+
+.handwritten-font-2 {
+  font-family: 'Homemade Apple', cursive;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--on-surface);
+}
+
+.handwritten-font-3 {
+  font-family: 'Zeyada', cursive;
+  font-size: 1.45rem;
+  line-height: 1.35;
+  color: var(--on-surface);
+  letter-spacing: 0.02em;
+}
+
