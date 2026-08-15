@@ -1,6 +1,6 @@
 
-import { useRef, useState, useEffect } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { useRef, useState, useEffect, useCallback } from 'react';
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Player } from '@lordicon/react';
 import './index.css';
 import WeatherWidget from './WeatherWidget';
@@ -9,6 +9,111 @@ import googleMapsIcon from './assets/google-maps.json';
 import Gallery from './Gallery';
 import ReviewsSection from './ReviewsSection';
 import { rooms } from './roomData';
+
+/* ---- Mobile Bottom Pill Navigation ---- */
+function MobileBottomNav() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleClickOutside = useCallback((event: MouseEvent) => {
+    if (navRef.current && !navRef.current.contains(event.target as Node)) {
+      setIsMenuOpen(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen, handleClickOutside]);
+
+  const handleHomeClick = () => {
+    if (location.pathname !== '/') {
+      navigate('/');
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    setIsMenuOpen(false);
+  };
+
+  const handleMenuItemClick = (href: string) => {
+    setIsMenuOpen(false);
+    if (location.pathname !== '/') {
+      navigate('/');
+      // Small delay to allow navigation before scrolling
+      setTimeout(() => {
+        const el = document.querySelector(href);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      const el = document.querySelector(href);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <div className="mobile-bottom-nav" ref={navRef}>
+      {isMenuOpen && (
+        <div className="mobile-bottom-menu">
+          <a className="nav-dropdown-item" href="#about" onClick={(e) => { e.preventDefault(); handleMenuItemClick('#about'); }}>
+            <span className="material-symbols-outlined item-icon">info</span>
+            <span>About Us</span>
+          </a>
+          <a className="nav-dropdown-item" href="#accommodation" onClick={(e) => { e.preventDefault(); handleMenuItemClick('#accommodation'); }}>
+            <span className="material-symbols-outlined item-icon">bed</span>
+            <span>Accommodation</span>
+          </a>
+          <a className="nav-dropdown-item" href="#facilities" onClick={(e) => { e.preventDefault(); handleMenuItemClick('#facilities'); }}>
+            <span className="material-symbols-outlined item-icon">wifi</span>
+            <span>Facilities</span>
+          </a>
+          <a className="nav-dropdown-item" href="#reviews" onClick={(e) => { e.preventDefault(); handleMenuItemClick('#reviews'); }}>
+            <span className="material-symbols-outlined item-icon">star</span>
+            <span>Guest Reviews</span>
+          </a>
+          <a className="nav-dropdown-item" href="#gallery" onClick={(e) => { e.preventDefault(); handleMenuItemClick('#gallery'); }}>
+            <span className="material-symbols-outlined item-icon">photo_library</span>
+            <span>Gallery</span>
+          </a>
+          <a className="nav-dropdown-item" href="#host" onClick={(e) => { e.preventDefault(); handleMenuItemClick('#host'); }}>
+            <span className="material-symbols-outlined item-icon">face</span>
+            <span>Meet Your Host</span>
+          </a>
+          <div className="dropdown-divider"></div>
+          <a className="nav-dropdown-item contact-item" href="#contact" onClick={(e) => { e.preventDefault(); handleMenuItemClick('#contact'); }}>
+            <span className="material-symbols-outlined item-icon">mail</span>
+            <span>Contact Us</span>
+          </a>
+        </div>
+      )}
+
+      <div className="mobile-pill-bar">
+        <img
+          alt="Madhuban"
+          className="mobile-pill-logo"
+          src={`${import.meta.env.BASE_URL}assets/Untitled-1-01.png`}
+          onClick={handleHomeClick}
+          style={{ cursor: 'pointer' }}
+        />
+        <span className="mobile-pill-home" onClick={handleHomeClick}>home</span>
+        <div className="mobile-pill-divider"></div>
+        <button
+          className={`mobile-pill-hamburger ${isMenuOpen ? 'active' : ''}`}
+          onClick={() => setIsMenuOpen(prev => !prev)}
+          aria-label="Toggle navigation menu"
+          aria-expanded={isMenuOpen}
+        >
+          <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function HomePage() {
   const mapsPlayerRef = useRef<Player>(null);
@@ -52,7 +157,7 @@ function HomePage() {
             <div className="logo-container" style={{ position: 'relative' }} ref={menuRef}>
               {/* Minimal Hamburger Menu Button (Top Left before Logo) */}
               <button 
-                className={`hamburger-menu-btn ${isMenuOpen ? 'active' : ''}`}
+                className={`hamburger-menu-btn desktop-only ${isMenuOpen ? 'active' : ''}`}
                 onClick={() => setIsMenuOpen(prev => !prev)}
                 aria-label="Toggle navigation menu"
                 aria-expanded={isMenuOpen}
@@ -384,10 +489,13 @@ function HomePage() {
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/room/:roomId" element={<RoomDetail />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/room/:roomId" element={<RoomDetail />} />
+      </Routes>
+      <MobileBottomNav />
+    </>
   );
 }
 
