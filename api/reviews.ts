@@ -213,9 +213,16 @@ async function initTursoDb(turso: ReturnType<typeof createClient>) {
       location INTEGER NOT NULL DEFAULT 5,
       value INTEGER NOT NULL DEFAULT 5,
       comment TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      is_hidden INTEGER DEFAULT 0
     );
   `);
+
+  try {
+    await turso.execute('ALTER TABLE reviews ADD COLUMN is_hidden INTEGER DEFAULT 0');
+  } catch (e) {
+    // Column already exists, ignore error
+  }
 }
 
 function computeStats(reviews: ReviewItem[]) {
