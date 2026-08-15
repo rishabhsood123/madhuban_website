@@ -264,105 +264,13 @@ export default async function handler(req: any, res: any) {
   const roomIdParam = req.query?.roomId || queryParams.get('roomId');
 
   try {
-    if (turso) {
-      await initTursoDb(turso);
-
-      if (method === 'GET') {
-        let result;
-        if (roomIdParam && roomIdParam !== 'all') {
-          result = await turso.execute({
-            sql: "SELECT * FROM reviews WHERE room_id = ? OR room_id = 'overall' ORDER BY id DESC",
-            args: [roomIdParam]
-          });
-        } else {
-          result = await turso.execute("SELECT * FROM reviews ORDER BY id DESC");
-        }
-
-        const allResult = await turso.execute("SELECT * FROM reviews");
-        const reviews = result.rows as unknown as ReviewItem[];
-        const allReviews = allResult.rows as unknown as ReviewItem[];
-        const stats = computeStats(allReviews);
-
-        return res.status(200).json({ reviews, stats });
-      }
-
-      if (method === 'POST') {
-        const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
-        const {
-          name,
-          roomId = 'overall',
-          rating = 5,
-          cleanliness = 5,
-          accuracy = 5,
-          checkIn = 5,
-          communication = 5,
-          location = 5,
-          value = 5,
-          comment
-        } = body;
-
-        if (!name || !comment) {
-          return res.status(400).json({ error: 'Name and comment are required.' });
-        }
-
-        const numRating = Math.min(5, Math.max(1, parseInt(rating, 10)));
-        const insertRes = await turso.execute({
-          sql: `INSERT INTO reviews (room_id, name, rating, cleanliness, accuracy, check_in, communication, location, value, comment)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          args: [
-            roomId,
-            name.trim(),
-            numRating,
-            parseInt(cleanliness, 10) || 5,
-            parseInt(accuracy, 10) || 5,
-            parseInt(checkIn, 10) || 5,
-            parseInt(communication, 10) || 5,
-            parseInt(location, 10) || 5,
-            parseInt(value, 10) || 5,
-            comment.trim()
-          ]
-        });
-
-        const createdId = Number(insertRes.lastInsertRowid);
-        const fetchRes = await turso.execute({
-          sql: "SELECT * FROM reviews WHERE id = ?",
-          args: [createdId]
-        });
-
-        return res.status(201).json(fetchRes.rows[0]);
-      }
-
-      if (method === 'PUT') {
-        const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
-        const pathIdStr = (req.url || '').split('/').pop()?.split('?')[0];
-        const targetId = parseInt(req.query?.id || pathIdStr || body.id, 10);
-
-        const numRating = Math.min(5, Math.max(1, parseInt(body.rating || 5, 10)));
-        await turso.execute({
-          sql: `UPDATE reviews 
-                SET room_id = ?, name = ?, rating = ?, cleanliness = ?, accuracy = ?, check_in = ?, communication = ?, location = ?, value = ?, comment = ?
-                WHERE id = ?`,
-          args: [
-            body.roomId || 'overall',
-            (body.name || '').trim(),
-            numRating,
-            parseInt(body.cleanliness, 10) || 5,
-            parseInt(body.accuracy, 10) || 5,
-            parseInt(body.checkIn, 10) || 5,
-            parseInt(body.communication, 10) || 5,
-            parseInt(body.location, 10) || 5,
-            parseInt(body.value, 10) || 5,
-            (body.comment || '').trim(),
-            targetId
-          ]
-        });
-
     // Admin authentication helper
     const ADMIN_KEY = process.env.ADMIN_KEY || 'madhuban123';
-    const reqAdminKey = req.headers['x-admin-key'] || (req.query as any)?.adminKey;
-    const isAdmin = reqAdminKey === ADMIN_KEY;
+    const bodyObj = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
+    const reqAdminKey = req.headers['x-admin-key'] || (req.query as any)?.adminKey || bodyObj?.adminKey;
+    const isAdmin = reqAdminKey && String(reqAdminKey).trim().toLowerCase() === String(ADMIN_KEY).trim().toLowerCase();
 
-    if (req.url?.includes('/api/admin/verify')) {
+    if (req.url?.includes('verify') || (req.query as any)?.action === 'verifyAdmin' || (req.query as any)?.verifyAdmin || (isAdmin && !bodyObj?.name)) {
       if (isAdmin) {
         return res.status(200).json({ success: true, message: 'Admin passcode verified' });
       }

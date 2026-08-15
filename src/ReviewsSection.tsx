@@ -199,12 +199,13 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
     setAdminPassError('');
     try {
       const key = adminPassInput.trim();
-      const res = await fetch(`${import.meta.env.BASE_URL}api/admin/verify`, {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/reviews?action=verifyAdmin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-admin-key': key
-        }
+        },
+        body: JSON.stringify({ adminKey: key })
       });
       if (res.ok) {
         sessionStorage.setItem('madhuban_admin_key', key);

@@ -150,17 +150,19 @@ try {
 const ADMIN_KEY = process.env.ADMIN_KEY || 'madhuban123';
 
 function verifyAdminKey(req) {
-  const key = req.headers['x-admin-key'] || req.query?.adminKey;
-  return key === ADMIN_KEY;
+  const key = req.headers['x-admin-key'] || req.query?.adminKey || req.body?.adminKey;
+  if (!key) return false;
+  return String(key).trim().toLowerCase() === String(ADMIN_KEY).trim().toLowerCase();
 }
 
-// POST /api/admin/verify - Verify admin passcode
-app.post('/api/admin/verify', (req, res) => {
+// POST or GET /api/admin/verify or /api/reviews?action=verifyAdmin
+app.all('/api/admin/verify', (req, res) => {
   if (verifyAdminKey(req)) {
     return res.json({ success: true, message: 'Admin passcode verified' });
   }
   return res.status(401).json({ error: 'Invalid admin passcode' });
 });
+
 
 // GET /api/reviews
 app.get('/api/reviews', (req, res) => {
@@ -232,6 +234,13 @@ app.get('/api/reviews', (req, res) => {
 
 // POST /api/reviews
 app.post('/api/reviews', (req, res) => {
+  if (req.query.action === 'verifyAdmin' || req.query.verifyAdmin || req.body?.action === 'verifyAdmin' || (verifyAdminKey(req) && !req.body?.name)) {
+    if (verifyAdminKey(req)) {
+      return res.json({ success: true, message: 'Admin passcode verified' });
+    }
+    return res.status(401).json({ error: 'Invalid admin passcode' });
+  }
+
   try {
     const {
       name,
