@@ -170,9 +170,18 @@ app.get('/api/reviews', (req, res) => {
     const roomId = req.query.roomId;
     const isAdmin = verifyAdminKey(req);
     const includeHidden = req.query.includeHidden === 'true' && isAdmin;
+    const showHiddenOnly = req.query.showHiddenOnly === 'true' && isAdmin;
 
     let reviews;
-    if (includeHidden) {
+    if (showHiddenOnly) {
+      if (roomId && roomId !== 'all') {
+        const stmt = db.prepare("SELECT * FROM reviews WHERE (room_id = ? OR room_id = 'overall') AND is_hidden = 1 ORDER BY id DESC");
+        reviews = stmt.all(roomId);
+      } else {
+        const stmt = db.prepare('SELECT * FROM reviews WHERE is_hidden = 1 ORDER BY id DESC');
+        reviews = stmt.all();
+      }
+    } else if (includeHidden) {
       if (roomId && roomId !== 'all') {
         const stmt = db.prepare("SELECT * FROM reviews WHERE (room_id = ? OR room_id = 'overall') ORDER BY id DESC");
         reviews = stmt.all(roomId);

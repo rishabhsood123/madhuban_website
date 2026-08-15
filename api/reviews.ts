@@ -275,9 +275,10 @@ export default async function handler(req: any, res: any) {
     const ADMIN_KEY = process.env.ADMIN_KEY || 'madhuban123';
     const bodyObj = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
     const reqAdminKey = req.headers['x-admin-key'] || (req.query as any)?.adminKey || bodyObj?.adminKey;
-    const isAdmin = reqAdminKey && String(reqAdminKey).trim().toLowerCase() === String(ADMIN_KEY).trim().toLowerCase();
+    const isAdmin = Boolean(reqAdminKey && String(reqAdminKey).trim().toLowerCase() === String(ADMIN_KEY).trim().toLowerCase());
 
-    if (req.url?.includes('verify') || (req.query as any)?.action === 'verifyAdmin' || (req.query as any)?.verifyAdmin || (isAdmin && !bodyObj?.name)) {
+    // Only respond with verify status if explicitly requested via verify endpoint or verifyAdmin action parameter
+    if ((req.url?.includes('verify') || (req.query as any)?.action === 'verifyAdmin' || (req.query as any)?.verifyAdmin) && method === 'POST') {
       if (isAdmin) {
         return res.status(200).json({ success: true, message: 'Admin passcode verified' });
       }
@@ -285,17 +286,21 @@ export default async function handler(req: any, res: any) {
     }
 
     const includeHidden = (req.query as any)?.includeHidden === 'true' && isAdmin;
+    const showHiddenOnlyParam = (req.query as any)?.showHiddenOnly === 'true' && isAdmin;
 
     // Check Turso database first if configured
     if (turso) {
       if (method === 'GET') {
         let query = "SELECT * FROM reviews";
         const args: any[] = [];
-
         const conditions: string[] = [];
-        if (!includeHidden) {
+
+        if (showHiddenOnlyParam) {
+          conditions.push("is_hidden = 1");
+        } else if (!includeHidden) {
           conditions.push("(is_hidden = 0 OR is_hidden IS NULL)");
         }
+
         if (roomIdParam && roomIdParam !== 'all') {
           conditions.push("(room_id = ? OR room_id = 'overall')");
           args.push(roomIdParam);
@@ -417,7 +422,9 @@ export default async function handler(req: any, res: any) {
     // In-Memory Fallback if no TURSO_DATABASE_URL is set
     if (method === 'GET') {
       let filtered = inMemoryReviews;
-      if (!includeHidden) {
+      if (showHiddenOnlyParam) {
+        filtered = filtered.filter((r) => r.is_hidden === 1);
+      } else if (!includeHidden) {
         filtered = filtered.filter((r) => !r.is_hidden);
       }
       if (roomIdParam && roomIdParam !== 'all') {

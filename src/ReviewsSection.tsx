@@ -165,8 +165,12 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
       if (filterRoom && filterRoom !== 'all') {
         queryParams.set('roomId', filterRoom);
       }
-      if (isAdmin && showHiddenOnly) {
-        queryParams.set('includeHidden', 'true');
+      if (isAdmin) {
+        if (showHiddenOnly) {
+          queryParams.set('showHiddenOnly', 'true');
+        } else {
+          queryParams.set('includeHidden', 'true');
+        }
       }
       const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
       const url = `${import.meta.env.BASE_URL}api/reviews${queryString}`;
@@ -363,7 +367,7 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
                 style={{ backgroundColor: showHiddenOnly ? '#ffffff' : 'rgba(255, 255, 255, 0.15)', color: showHiddenOnly ? 'var(--primary)' : '#ffffff', border: 'none' }}
                 onClick={() => setShowHiddenOnly(prev => !prev)}
               >
-                {showHiddenOnly ? 'Viewing Hidden Reviews' : 'Show Hidden Reviews'}
+                {showHiddenOnly ? 'Show All Reviews' : 'Filter: Show Hidden Only'}
               </button>
               <button 
                 type="button"
