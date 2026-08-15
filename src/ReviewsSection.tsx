@@ -227,11 +227,17 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
 
   const handleHideReview = async (id: number) => {
     if (!window.confirm('Are you sure you want to hide this review from public view? (Soft Delete)')) return;
+    const activeKey = adminKey || sessionStorage.getItem('madhuban_admin_key') || '';
+    if (!activeKey) {
+      setAdminPassError('Please enter your admin passcode to hide reviews.');
+      setIsAdminModalOpen(true);
+      return;
+    }
     try {
       const res = await fetch(`${import.meta.env.BASE_URL}api/reviews/${id}`, {
         method: 'DELETE',
         headers: {
-          'x-admin-key': adminKey
+          'x-admin-key': activeKey
         }
       });
       if (res.ok) {
@@ -239,8 +245,13 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
         if (selectedDetailReview?.id === id) {
           setSelectedDetailReview(null);
         }
+      } else if (res.status === 401) {
+        sessionStorage.removeItem('madhuban_admin_key');
+        setAdminKey('');
+        setAdminPassError('Admin passcode expired or invalid. Please re-enter.');
+        setIsAdminModalOpen(true);
       } else {
-        alert('Failed to hide review. Admin passcode expired or invalid.');
+        alert('Failed to hide review. Please try again.');
       }
     } catch (err) {
       console.error('Error hiding review:', err);
@@ -248,17 +259,28 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
   };
 
   const handleRestoreReview = async (id: number) => {
+    const activeKey = adminKey || sessionStorage.getItem('madhuban_admin_key') || '';
+    if (!activeKey) {
+      setAdminPassError('Please enter your admin passcode.');
+      setIsAdminModalOpen(true);
+      return;
+    }
     try {
       const res = await fetch(`${import.meta.env.BASE_URL}api/reviews/${id}/restore`, {
         method: 'POST',
         headers: {
-          'x-admin-key': adminKey
+          'x-admin-key': activeKey
         }
       });
       if (res.ok) {
         fetchReviews();
+      } else if (res.status === 401) {
+        sessionStorage.removeItem('madhuban_admin_key');
+        setAdminKey('');
+        setAdminPassError('Admin passcode expired or invalid. Please re-enter.');
+        setIsAdminModalOpen(true);
       } else {
-        alert('Failed to restore review.');
+        alert('Failed to restore review. Please try again.');
       }
     } catch (err) {
       console.error('Error restoring review:', err);
