@@ -243,11 +243,21 @@ app.get('/api/reviews', (req, res) => {
 
 // POST /api/reviews
 app.post('/api/reviews', (req, res) => {
-  if (req.query.action === 'verifyAdmin' || req.query.verifyAdmin || req.body?.action === 'verifyAdmin' || (verifyAdminKey(req) && !req.body?.name)) {
+  if (req.query.action === 'verifyAdmin' || req.query.verifyAdmin || req.body?.action === 'verifyAdmin') {
     if (verifyAdminKey(req)) {
       return res.json({ success: true, message: 'Admin passcode verified' });
     }
     return res.status(401).json({ error: 'Invalid admin passcode' });
+  }
+
+  if (req.query.action === 'restore' || req.body?.action === 'restore') {
+    if (!verifyAdminKey(req)) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid Admin Passcode' });
+    }
+    const id = req.query.id || req.body?.id;
+    const stmt = db.prepare('UPDATE reviews SET is_hidden = 0 WHERE id = ?');
+    const result = stmt.run(id);
+    return res.json({ success: true, id: Number(id), is_hidden: 0 });
   }
 
   try {
@@ -357,14 +367,14 @@ app.put('/api/reviews/:id', (req, res) => {
   }
 });
 
-// DELETE /api/reviews/:id -> Soft Delete (is_hidden = 1) (Admin protected)
-app.delete('/api/reviews/:id', (req, res) => {
+// DELETE /api/reviews or /api/reviews/:id -> Soft Delete (is_hidden = 1) (Admin protected)
+app.delete(['/api/reviews', '/api/reviews/:id'], (req, res) => {
   if (!verifyAdminKey(req)) {
     return res.status(401).json({ error: 'Unauthorized: Invalid Admin Passcode' });
   }
 
   try {
-    const { id } = req.params;
+    const id = req.params.id || req.query.id || req.body?.id;
     const stmt = db.prepare('UPDATE reviews SET is_hidden = 1 WHERE id = ?');
     const result = stmt.run(id);
     if (result.changes === 0) {
@@ -377,14 +387,14 @@ app.delete('/api/reviews/:id', (req, res) => {
   }
 });
 
-// POST /api/reviews/:id/restore -> Unhide review (is_hidden = 0) (Admin protected)
-app.post('/api/reviews/:id/restore', (req, res) => {
+// POST /api/reviews/:id/restore or /api/reviews?action=restore -> Unhide review (is_hidden = 0) (Admin protected)
+app.post(['/api/reviews/restore', '/api/reviews/:id/restore'], (req, res) => {
   if (!verifyAdminKey(req)) {
     return res.status(401).json({ error: 'Unauthorized: Invalid Admin Passcode' });
   }
 
   try {
-    const { id } = req.params;
+    const id = req.params.id || req.query.id || req.body?.id;
     const stmt = db.prepare('UPDATE reviews SET is_hidden = 0 WHERE id = ?');
     const result = stmt.run(id);
     if (result.changes === 0) {

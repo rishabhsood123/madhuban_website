@@ -321,10 +321,10 @@ export default async function handler(req: any, res: any) {
         return res.status(200).json({ reviews, stats });
       }
 
-      if (method === 'POST' && req.url?.includes('/restore')) {
+      if (method === 'POST' && (req.url?.includes('/restore') || (req.query as any)?.action === 'restore')) {
         if (!isAdmin) return res.status(401).json({ error: 'Unauthorized: Invalid Admin Passcode' });
         const pathParts = (req.url || '').split('/');
-        const targetId = parseInt(pathParts[pathParts.indexOf('reviews') + 1] || (req.query as any)?.id, 10);
+        const targetId = parseInt((req.query as any)?.id || bodyObj?.id || pathParts[pathParts.indexOf('reviews') + 1], 10);
         await turso.execute({
           sql: "UPDATE reviews SET is_hidden = 0 WHERE id = ?",
           args: [targetId]

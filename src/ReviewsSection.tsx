@@ -234,7 +234,7 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
       return;
     }
     try {
-      const res = await fetch(`${import.meta.env.BASE_URL}api/reviews/${id}`, {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/reviews?id=${id}`, {
         method: 'DELETE',
         headers: {
           'x-admin-key': activeKey
@@ -266,7 +266,7 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
       return;
     }
     try {
-      const res = await fetch(`${import.meta.env.BASE_URL}api/reviews/${id}/restore`, {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/reviews?action=restore&id=${id}`, {
         method: 'POST',
         headers: {
           'x-admin-key': activeKey
