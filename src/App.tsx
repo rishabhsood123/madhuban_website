@@ -13,9 +13,41 @@ import { rooms } from './roomData';
 /* ---- Mobile Bottom Pill Navigation ---- */
 function MobileBottomNav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
   const navRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Keep visible near top of page or if the menu panel is open
+      if (currentScrollY <= 20 || isMenuOpen) {
+        setIsVisible(true);
+        lastScrollY.current = currentScrollY;
+        return;
+      }
+
+      const delta = currentScrollY - lastScrollY.current;
+      if (Math.abs(delta) > 6) {
+        if (delta > 0) {
+          // Scrolling down -> hide pill
+          setIsVisible(false);
+        } else {
+          // Scrolling up -> show pill
+          setIsVisible(true);
+        }
+        lastScrollY.current = currentScrollY;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [isMenuOpen]);
 
   const handleClickOutside = useCallback((event: MouseEvent) => {
     if (navRef.current && !navRef.current.contains(event.target as Node)) {
@@ -57,7 +89,7 @@ function MobileBottomNav() {
   };
 
   return (
-    <div className="mobile-bottom-nav" ref={navRef}>
+    <div className={`mobile-bottom-nav ${!isVisible ? 'nav-hidden' : ''}`} ref={navRef}>
       {isMenuOpen && (
         <div className="mobile-bottom-menu">
           <a className="nav-dropdown-item" href="#about" onClick={(e) => { e.preventDefault(); handleMenuItemClick('#about'); }}>
