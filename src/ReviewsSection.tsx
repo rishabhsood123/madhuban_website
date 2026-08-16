@@ -123,8 +123,76 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
   const [comment, setComment] = useState('');
   const [formError, setFormError] = useState('');
 
-  // Carousel ref
-  const carouselRef = useRef<HTMLDivElement>(null);
+  // Single Review Showcase State & Fade Animation
+  const [featuredIndex, setFeaturedIndex] = useState(0);
+  const [isFading, setIsFading] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+
+  // Touch Swipe Gesture Handling for Mobile
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsPaused(true);
+    touchStartX.current = e.targetTouches[0].clientX;
+    touchEndX.current = null;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current === null || touchEndX.current === null) return;
+    const distance = touchStartX.current - touchEndX.current;
+    const minSwipeDistance = 35; // 35px threshold
+
+    if (distance > minSwipeDistance) {
+      // Swiped Left -> Next Review
+      handleNextFeatured();
+    } else if (distance < -minSwipeDistance) {
+      // Swiped Right -> Previous Review
+      handlePrevFeatured();
+    }
+
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
+  // Reset index when filter changes or when reviews list updates
+  useEffect(() => {
+    setFeaturedIndex(0);
+  }, [filterRoom, reviews.length]);
+
+  const handleTransition = useCallback((nextIndex: number) => {
+    if (isFading || reviews.length === 0) return;
+    setIsFading(true);
+    setTimeout(() => {
+      setFeaturedIndex(nextIndex);
+      setIsFading(false);
+    }, 300);
+  }, [isFading, reviews.length]);
+
+  const handleNextFeatured = useCallback(() => {
+    if (reviews.length === 0) return;
+    const next = (featuredIndex + 1) % reviews.length;
+    handleTransition(next);
+  }, [featuredIndex, reviews.length, handleTransition]);
+
+  const handlePrevFeatured = useCallback(() => {
+    if (reviews.length === 0) return;
+    const prev = (featuredIndex - 1 + reviews.length) % reviews.length;
+    handleTransition(prev);
+  }, [featuredIndex, reviews.length, handleTransition]);
+
+  // Auto-play slideshow (every 7 seconds unless paused on hover or modals open)
+  useEffect(() => {
+    if (isPaused || reviews.length <= 1 || isAllReviewsModalOpen || isWriteModalOpen || isAdminModalOpen) return;
+    const interval = setInterval(() => {
+      handleNextFeatured();
+    }, 7000);
+    return () => clearInterval(interval);
+  }, [isPaused, reviews.length, isAllReviewsModalOpen, isWriteModalOpen, isAdminModalOpen, handleNextFeatured]);
 
   const openNewReviewModal = () => {
     setEditingReview(null);
@@ -520,10 +588,10 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
           </div>
         )}
 
-        {/* Horizontal Carousel Section (Latest 10 Reviews) */}
+        {/* Single Review Showcase Section with Alternating Fade-In / Fade-Out */}
         {loading ? (
           <div className="reviews-loading body-md text-on-surface-variant">Loading reviews...</div>
-        ) : carouselReviews.length === 0 ? (
+        ) : reviews.length === 0 ? (
           <div className="reviews-empty">
             <p className="body-lg text-on-surface-variant">No reviews yet for this filter.</p>
             <button className="btn-primary" style={{ marginTop: '16px' }} onClick={openNewReviewModal}>
@@ -531,110 +599,145 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
             </button>
           </div>
         ) : (
-          <div className="reviews-carousel-wrapper">
-            
-            {/* Nav Arrows */}
-            <button 
-              className="carousel-nav-btn carousel-nav-left"
-              onClick={() => scrollCarousel('left')}
-              aria-label="Previous reviews"
-            >
-              <span className="material-symbols-outlined">chevron_left</span>
-            </button>
+          <div 
+            className="single-review-showcase-container"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            {/* Nav Prev Button */}
+            {reviews.length > 1 && (
+              <button 
+                className="showcase-nav-btn showcase-nav-prev"
+                onClick={handlePrevFeatured}
+                aria-label="Previous review"
+              >
+                <span className="material-symbols-outlined">chevron_left</span>
+              </button>
+            )}
 
-            <div className="reviews-carousel-container" ref={carouselRef}>
-              {carouselReviews.map((rev) => {
-                const isLong = rev.comment.length > 130;
-                const displayComment = isLong 
-                  ? rev.comment.slice(0, 130) + '...'
-                  : rev.comment;
+            {/* Single Review Card (Borderless, Transparent matching website background) */}
+            {(() => {
+              const safeIndex = Math.min(featuredIndex, reviews.length - 1);
+              const rev = reviews[safeIndex] || reviews[0];
+              if (!rev) return null;
 
-                return (
-                  <div className="review-card-carousel" key={rev.id}>
-                    <div className="review-card-header">
-                      <div className="reviewer-avatar">
-                        {getInitials(rev.name)}
-                      </div>
-                      <div className="reviewer-meta">
-                        <h3 className="font-headline label-md reviewer-name">{rev.name}</h3>
-                        <span className="body-sm text-on-surface-variant reviewer-sub">Guest at Madhuban</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span className={`room-badge label-sm ${rev.is_hidden ? 'hidden-badge' : ''}`}>
-                          {rev.is_hidden ? 'Hidden' : (ROOM_NAMES[rev.room_id] || 'Verified Stay')}
-                        </span>
-                        {isAdmin ? (
-                          rev.is_hidden ? (
-                            <button
-                              className="review-restore-btn"
-                              onClick={(e) => { e.stopPropagation(); handleRestoreReview(rev.id); }}
-                              title="Unhide review"
-                            >
-                              <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>visibility</span>
-                              <span>Unhide</span>
-                            </button>
-                          ) : (
-                            <button
-                              className="review-hide-btn"
-                              onClick={(e) => { e.stopPropagation(); handleHideReview(rev.id); }}
-                              title="Hide review (Soft Delete)"
-                            >
-                              <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>delete</span>
-                              <span>Hide</span>
-                            </button>
-                          )
-                        ) : (
-                          <button 
-                            className="review-edit-btn"
-                            onClick={(e) => { e.stopPropagation(); openEditReviewModal(rev); }}
-                            title="Edit feedback"
-                            aria-label="Edit feedback"
+              const isLong = rev.comment.length > 250;
+              const displayComment = isLong 
+                ? rev.comment.slice(0, 250) + '...'
+                : rev.comment;
+
+              return (
+                <div className={`single-review-card ${isFading ? 'fade-out' : 'fade-in'}`} key={rev.id}>
+                  <div className="single-review-header">
+                    <div className="reviewer-avatar">
+                      {getInitials(rev.name)}
+                    </div>
+                    <div className="reviewer-meta">
+                      <h3 className="font-headline label-md reviewer-name">{rev.name}</h3>
+                      <span className="body-sm text-on-surface-variant reviewer-sub">Guest at Madhuban</span>
+                    </div>
+
+                    <div className="single-review-badge-group">
+                      <span className={`room-badge label-sm ${rev.is_hidden ? 'hidden-badge' : ''}`}>
+                        {rev.is_hidden ? 'Hidden' : (ROOM_NAMES[rev.room_id] || 'Verified Stay')}
+                      </span>
+
+                      {isAdmin ? (
+                        rev.is_hidden ? (
+                          <button
+                            className="review-restore-btn"
+                            onClick={(e) => { e.stopPropagation(); handleRestoreReview(rev.id); }}
+                            title="Unhide review"
                           >
-                            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>edit</span>
+                            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>visibility</span>
+                            <span>Unhide</span>
                           </button>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="review-card-subline">
-                      <div className="review-stars-mini">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <span 
-                            key={star} 
-                            className={`material-symbols-outlined star-icon ${star <= rev.rating ? 'filled' : 'empty'}`}
+                        ) : (
+                          <button
+                            className="review-hide-btn"
+                            onClick={(e) => { e.stopPropagation(); handleHideReview(rev.id); }}
+                            title="Hide review (Soft Delete)"
                           >
-                            star
-                          </span>
-                        ))}
-                      </div>
-                      <span className="bullet-sep">·</span>
-                      <span className="review-date-text">{formatDate(rev.created_at)}</span>
+                            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>delete</span>
+                            <span>Hide</span>
+                          </button>
+                        )
+                      ) : (
+                        <button 
+                          className="review-edit-btn"
+                          onClick={(e) => { e.stopPropagation(); openEditReviewModal(rev); }}
+                          title="Edit feedback"
+                          aria-label="Edit feedback"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>edit</span>
+                        </button>
+                      )}
                     </div>
-
-                    <p className={`body-md text-on-surface-variant review-comment ${getHandwrittenFontClass(rev.id)}`}>
-                      {displayComment}
-                    </p>
-
-                    {isLong && (
-                      <button 
-                        className="show-more-link"
-                        onClick={() => setSelectedDetailReview(rev)}
-                      >
-                        Show more &gt;
-                      </button>
-                    )}
                   </div>
-                );
-              })}
-            </div>
 
-            <button 
-              className="carousel-nav-btn carousel-nav-right"
-              onClick={() => scrollCarousel('right')}
-              aria-label="Next reviews"
-            >
-              <span className="material-symbols-outlined">chevron_right</span>
-            </button>
+                  <div className="single-review-subline">
+                    <div className="review-stars-mini">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span 
+                          key={star} 
+                          className={`material-symbols-outlined star-icon ${star <= rev.rating ? 'filled' : 'empty'}`}
+                        >
+                          star
+                        </span>
+                      ))}
+                    </div>
+                    <span className="bullet-sep">·</span>
+                    <span className="review-date-text">{formatDate(rev.created_at)}</span>
+                  </div>
+
+                  <p className={`single-review-comment ${getHandwrittenFontClass(rev.id)}`}>
+                    “{displayComment}”
+                  </p>
+
+                  {isLong && (
+                    <button 
+                      className="show-more-link"
+                      onClick={() => setSelectedDetailReview(rev)}
+                    >
+                      Read full review &gt;
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* Nav Next Button */}
+            {reviews.length > 1 && (
+              <button 
+                className="showcase-nav-btn showcase-nav-next"
+                onClick={handleNextFeatured}
+                aria-label="Next review"
+              >
+                <span className="material-symbols-outlined">chevron_right</span>
+              </button>
+            )}
+
+            {/* Dots Indicator & Counter Footer */}
+            {reviews.length > 1 && (
+              <div className="showcase-controls-footer">
+                <div className="showcase-dots">
+                  {reviews.slice(0, 10).map((_, idx) => (
+                    <button
+                      key={idx}
+                      className={`dot-btn ${idx === (featuredIndex % Math.min(10, reviews.length)) ? 'active' : ''}`}
+                      onClick={() => handleTransition(idx)}
+                      aria-label={`Go to review ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+                <span className="showcase-counter-text label-sm">
+                  {featuredIndex + 1} of {reviews.length}
+                </span>
+              </div>
+            )}
           </div>
         )}
 

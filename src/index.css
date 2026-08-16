@@ -1589,7 +1589,7 @@ body {
   background-color: var(--surface-container-low);
   padding: 6px 12px;
   border-radius: 10px;
-  border: 1px solid var(--surface-container-highest);
+  border: none;
   box-sizing: border-box;
 }
 
@@ -1619,7 +1619,7 @@ body {
   background-color: var(--surface-container-low);
   padding: 6px 14px;
   border-radius: 12px;
-  border: 1px solid var(--surface-container-highest);
+  border: none;
   box-sizing: border-box;
 }
 
@@ -2388,33 +2388,156 @@ body {
     transition: background-color 0.15s ease, color 0.15s ease;
   }
 
-  .mobile-bottom-menu .nav-dropdown-item:hover {
-    background-color: var(--surface-container-low);
-    color: var(--primary);
-  }
-
-  .mobile-bottom-menu .nav-dropdown-item .item-icon {
-    font-size: 18px;
-    color: var(--secondary);
-  }
-
-  .mobile-bottom-menu .dropdown-divider {
-    height: 1px;
-    background-color: var(--surface-container-highest);
-    margin: 4px 0;
-  }
-
-  /* Overlay behind menu to capture outside clicks */
-  .mobile-menu-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 199;
-    background: transparent;
-  }
-
   /* Add bottom padding to footer so it's not hidden behind pill */
   .footer {
     padding-bottom: 80px;
+  }
+}
+
+/* =============================================
+   Single Review Showcase & Alternating Fade
+   ============================================= */
+.single-review-showcase-container {
+  position: relative;
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 16px 54px;
+  box-sizing: border-box;
+}
+
+.single-review-card {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 8px 12px;
+  text-align: center;
+  transition: opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1), transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, transform;
+}
+
+.single-review-card.fade-in {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.single-review-card.fade-out {
+  opacity: 0;
+  transform: translateY(6px) scale(0.98);
+}
+
+.single-review-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.single-review-badge-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.single-review-subline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.single-review-comment {
+  font-size: 26px;
+  line-height: 1.55;
+  color: var(--primary);
+  margin: 16px auto 12px auto;
+  max-width: 680px;
+  word-break: break-word;
+}
+
+.showcase-nav-btn {
+  position: absolute;
+  top: 42%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 249, 236, 0.85);
+  border: 1px solid var(--surface-container-highest);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.showcase-nav-btn:hover {
+  background: #ffffff;
+  transform: translateY(-50%) scale(1.06);
+  box-shadow: 0 4px 14px rgba(23, 49, 36, 0.12);
+}
+
+.showcase-nav-prev {
+  left: 0;
+}
+
+.showcase-nav-next {
+  right: 0;
+}
+
+.showcase-controls-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.showcase-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.showcase-dots .dot-btn {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--surface-container-highest);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.showcase-dots .dot-btn.active {
+  background-color: var(--primary);
+  width: 22px;
+  border-radius: 999px;
+}
+
+.showcase-counter-text {
+  color: var(--on-surface-variant);
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+@media (max-width: 767px) {
+  .single-review-showcase-container {
+    padding: 12px 0;
+  }
+  .showcase-nav-btn {
+    display: none !important;
+  }
+  .single-review-comment {
+    font-size: 21px;
   }
 }
 
