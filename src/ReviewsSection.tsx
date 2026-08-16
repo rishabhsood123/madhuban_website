@@ -355,12 +355,7 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
     }
   };
 
-  // Scroll controls for horizontal carousel
-  const scrollCarousel = (direction: 'left' | 'right') => {
-    if (!carouselRef.current) return;
-    const scrollAmount = direction === 'left' ? -380 : 380;
-    carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -428,9 +423,6 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
 
   const avgScore = stats ? stats.average.toFixed(1) : '5.0';
   const totalCount = stats ? stats.total : reviews.length;
-
-  // Latest 10 reviews for horizontal swipe
-  const carouselReviews = reviews.slice(0, 10);
 
   // Filtered reviews for "Show all reviews" modal
   const filteredAllReviews = reviews.filter((r) => {
