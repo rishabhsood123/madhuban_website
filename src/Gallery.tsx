@@ -136,26 +136,26 @@ export default function Gallery() {
         <span className="gallery-month-desc">{currentMonth.desc}</span>
       </div>
 
-      {/* Masonry photo grid */}
+      {/* Magazine Layout Photo Grid (6 Images) */}
       <div
         id="gallery-grid"
         role="tabpanel"
         aria-labelledby={`gallery-tab-${currentMonth.key}`}
-        className={`gallery-masonry${animating ? ' gallery-fade-out' : ''}`}
+        className={`gallery-magazine-grid${animating ? ' gallery-fade-out' : ''}`}
       >
-        {currentImages.map((img, i) => (
+        {/* 1. BIG PHOTO */}
+        {currentImages[0] && (
           <div
-            key={`${currentMonth.key}-${i}`}
-            className="gallery-item"
-            onClick={() => openLightbox(i)}
+            className="gallery-item magazine-item-big"
+            onClick={() => openLightbox(0)}
             role="button"
             tabIndex={0}
-            aria-label={`Open photo: ${img.alt}`}
-            onKeyDown={(e) => e.key === 'Enter' && openLightbox(i)}
+            aria-label={`Open photo: ${currentImages[0].alt}`}
+            onKeyDown={(e) => e.key === 'Enter' && openLightbox(0)}
           >
             <img
-              src={`${import.meta.env.BASE_URL}assets/${img.src}`}
-              alt={img.alt}
+              src={`${import.meta.env.BASE_URL}assets/${currentImages[0].src}`}
+              alt={currentImages[0].alt}
               className="gallery-img"
               loading="lazy"
             />
@@ -163,7 +163,121 @@ export default function Gallery() {
               <span className="material-symbols-outlined gallery-zoom-icon">zoom_in</span>
             </div>
           </div>
-        ))}
+        )}
+
+
+
+        {/* 2. ASYMMETRIC PAIR 1 (small photo + large photo) */}
+        <div className="magazine-row-asymmetric-1">
+          {currentImages[1] && (
+            <div
+              className="gallery-item magazine-item-small"
+              onClick={() => openLightbox(1)}
+              role="button"
+              tabIndex={0}
+              aria-label={`Open photo: ${currentImages[1].alt}`}
+              onKeyDown={(e) => e.key === 'Enter' && openLightbox(1)}
+            >
+              <img
+                src={`${import.meta.env.BASE_URL}assets/${currentImages[1].src}`}
+                alt={currentImages[1].alt}
+                className="gallery-img"
+                loading="lazy"
+              />
+              <div className="gallery-item-overlay" aria-hidden="true">
+                <span className="material-symbols-outlined gallery-zoom-icon">zoom_in</span>
+              </div>
+            </div>
+          )}
+
+          {currentImages[2] && (
+            <div
+              className="gallery-item magazine-item-large"
+              onClick={() => openLightbox(2)}
+              role="button"
+              tabIndex={0}
+              aria-label={`Open photo: ${currentImages[2].alt}`}
+              onKeyDown={(e) => e.key === 'Enter' && openLightbox(2)}
+            >
+              <img
+                src={`${import.meta.env.BASE_URL}assets/${currentImages[2].src}`}
+                alt={currentImages[2].alt}
+                className="gallery-img"
+                loading="lazy"
+              />
+              <div className="gallery-item-overlay" aria-hidden="true">
+                <span className="material-symbols-outlined gallery-zoom-icon">zoom_in</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 3. FULL WIDTH PHOTO */}
+        {currentImages[3] && (
+          <div
+            className="gallery-item magazine-item-full"
+            onClick={() => openLightbox(3)}
+            role="button"
+            tabIndex={0}
+            aria-label={`Open photo: ${currentImages[3].alt}`}
+            onKeyDown={(e) => e.key === 'Enter' && openLightbox(3)}
+          >
+            <img
+              src={`${import.meta.env.BASE_URL}assets/${currentImages[3].src}`}
+              alt={currentImages[3].alt}
+              className="gallery-img"
+              loading="lazy"
+            />
+            <div className="gallery-item-overlay" aria-hidden="true">
+              <span className="material-symbols-outlined gallery-zoom-icon">zoom_in</span>
+            </div>
+          </div>
+        )}
+
+        {/* 4. ASYMMETRIC PAIR 2 (large photo + small photo) */}
+        <div className="magazine-row-asymmetric-2">
+          {currentImages[4] && (
+            <div
+              className="gallery-item magazine-item-large"
+              onClick={() => openLightbox(4)}
+              role="button"
+              tabIndex={0}
+              aria-label={`Open photo: ${currentImages[4].alt}`}
+              onKeyDown={(e) => e.key === 'Enter' && openLightbox(4)}
+            >
+              <img
+                src={`${import.meta.env.BASE_URL}assets/${currentImages[4].src}`}
+                alt={currentImages[4].alt}
+                className="gallery-img"
+                loading="lazy"
+              />
+              <div className="gallery-item-overlay" aria-hidden="true">
+                <span className="material-symbols-outlined gallery-zoom-icon">zoom_in</span>
+              </div>
+            </div>
+          )}
+
+          {currentImages[5] && (
+            <div
+              className="gallery-item magazine-item-small"
+              onClick={() => openLightbox(5)}
+              role="button"
+              tabIndex={0}
+              aria-label={`Open photo: ${currentImages[5].alt}`}
+              onKeyDown={(e) => e.key === 'Enter' && openLightbox(5)}
+            >
+              <img
+                src={`${import.meta.env.BASE_URL}assets/${currentImages[5].src}`}
+                alt={currentImages[5].alt}
+                className="gallery-img"
+                loading="lazy"
+              />
+              <div className="gallery-item-overlay" aria-hidden="true">
+                <span className="material-symbols-outlined gallery-zoom-icon">zoom_in</span>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Lightbox */}

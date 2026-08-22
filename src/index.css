@@ -1381,41 +1381,122 @@ body {
   font-style: italic;
 }
 
-/* Masonry Grid */
-.gallery-masonry {
-  columns: 2;
-  column-gap: 16px;
+/* =============================================
+   Magazine Layout Gallery (Life at Madhuban)
+   ============================================= */
+.gallery-magazine-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
   transition: opacity 0.22s ease, transform 0.22s ease;
 }
 
-.gallery-masonry.gallery-fade-out {
+.gallery-magazine-grid.gallery-fade-out {
   opacity: 0;
   transform: translateY(6px);
 }
 
-@media (min-width: 600px) {
-  .gallery-masonry { columns: 3; }
-}
-
-@media (min-width: 1024px) {
-  .gallery-masonry { columns: 3; }
-}
-
 .gallery-item {
-  break-inside: avoid;
-  margin-bottom: 10px;
   position: relative;
-  border-radius: 10px;
+  border-radius: 0px !important; /* Sharp unrounded magazine edges */
   overflow: hidden;
   cursor: pointer;
   background: var(--surface-container-low);
+  box-shadow: none;
 }
 
 .gallery-img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   display: block;
-  transition: transform 0.35s ease;
+  border-radius: 0px !important;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 1. BIG PHOTO HERO */
+.magazine-item-big {
+  width: 100%;
+  max-height: 520px;
+  aspect-ratio: 16/9;
+}
+
+
+
+/* Asymmetric Pair Rows */
+.magazine-row-asymmetric-1,
+.magazine-row-asymmetric-2 {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  width: 100%;
+}
+
+/* 40% / 60% widths */
+.magazine-row-asymmetric-1 .magazine-item-small {
+  flex: 0 0 38%;
+  aspect-ratio: 4/5;
+}
+
+.magazine-row-asymmetric-1 .magazine-item-large {
+  flex: 0 0 calc(62% - 20px);
+  aspect-ratio: 16/10;
+}
+
+/* 60% / 40% widths */
+.magazine-row-asymmetric-2 .magazine-item-large {
+  flex: 0 0 calc(62% - 20px);
+  aspect-ratio: 16/10;
+}
+
+.magazine-row-asymmetric-2 .magazine-item-small {
+  flex: 0 0 38%;
+  aspect-ratio: 4/5;
+}
+
+/* FULL WIDTH LANDSCAPE PHOTO */
+.magazine-item-full {
+  width: 100%;
+  max-height: 480px;
+  aspect-ratio: 21/9;
+}
+
+@media (max-width: 650px) {
+  .gallery-magazine-grid {
+    gap: 14px;
+    padding: 0 4px;
+  }
+
+  .magazine-row-asymmetric-1,
+  .magazine-row-asymmetric-2 {
+    gap: 10px;
+  }
+  .magazine-row-asymmetric-1 .magazine-item-small {
+    flex: 0 0 calc(38% - 5px);
+    aspect-ratio: 4/5;
+  }
+  .magazine-row-asymmetric-1 .magazine-item-large {
+    flex: 0 0 calc(62% - 5px);
+    aspect-ratio: 4/3;
+  }
+  .magazine-row-asymmetric-2 .magazine-item-large {
+    flex: 0 0 calc(62% - 5px);
+    aspect-ratio: 4/3;
+  }
+  .magazine-row-asymmetric-2 .magazine-item-small {
+    flex: 0 0 calc(38% - 5px);
+    aspect-ratio: 4/5;
+  }
+  .magazine-item-big {
+    aspect-ratio: 16/10;
+    max-height: 260px;
+  }
+  .magazine-item-full {
+    aspect-ratio: 16/9;
+    max-height: 220px;
+  }
 }
 
 .gallery-item-overlay {
