@@ -657,42 +657,174 @@ body {
 }
 
 /* ========================================
-   Room Card Clickable Styles (Homepage)
+   Accommodation Zigzag Layout
    ======================================== */
 
-.room-card-link {
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+.rooms-zigzag {
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
 }
 
-.room-card-link:hover {
-  transform: translateY(-4px);
-  box-shadow: 0px 8px 32px rgba(45, 71, 57, 0.12);
+.room-zigzag-card {
+  display: flex;
+  flex-direction: column;
 }
 
-.room-card-link:hover .room-img {
+.room-zigzag-row {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-xl);
+}
+
+.room-zigzag-row--reverse {
+  flex-direction: row-reverse;
+}
+
+.room-zigzag-name {
+  text-align: center;
+  margin-bottom: var(--spacing-md);
+  font-size: 1.5rem;
+}
+
+/* Image column */
+.room-zigzag-image-col {
+  flex: 1 1 50%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.room-zigzag-image {
+  flex: 1;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.room-zigzag-image img {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.room-zigzag-row:hover .room-zigzag-image img {
   transform: scale(1.03);
 }
 
-.room-card-link .room-img {
-  transition: transform 0.4s ease;
+/* Content column */
+.room-zigzag-content {
+  flex: 1 1 50%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--spacing-lg) var(--spacing-md);
+  gap: var(--spacing-sm);
 }
 
-.room-card-cta {
-  display: inline-block;
-  margin-top: 12px;
-  color: var(--secondary);
+.room-zigzag-icon {
+  font-size: 40px;
+  color: var(--on-surface-variant);
+  opacity: 0.6;
+}
+
+.room-zigzag-price {
+  font-size: 1.1rem;
+  color: var(--on-surface);
   font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: none;
-  transition: color 0.2s ease, letter-spacing 0.2s ease;
 }
 
-.room-card-link:hover .room-card-cta {
-  color: var(--primary);
-  letter-spacing: 0.06em;
+.room-zigzag-desc {
+  max-width: 360px;
+  line-height: 1.6;
+  font-size: 0.9rem;
+}
+
+.room-zigzag-btn {
+  display: inline-block;
+  margin-top: var(--spacing-md);
+  padding: 10px 28px;
+  background-color: var(--primary);
+  color: var(--on-primary);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  border: none;
+  border-radius: 24px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.room-zigzag-btn:hover {
+  background-color: #1e4a34;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(23, 49, 36, 0.25);
+}
+
+/* Mobile: keep zigzag but scale down */
+@media (max-width: 767px) {
+  .rooms-zigzag {
+    gap: 36px;
+  }
+
+  .room-zigzag-row {
+    gap: var(--spacing-md);
+  }
+
+  .room-zigzag-row--reverse {
+    flex-direction: row-reverse;
+  }
+
+  .room-zigzag-image-col {
+    flex: 1 1 45%;
+  }
+
+  .room-zigzag-content {
+    flex: 1 1 55%;
+    padding: var(--spacing-sm) 0;
+    gap: 4px;
+  }
+
+  .room-zigzag-name {
+    font-size: 1rem;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .room-zigzag-image {
+    border-radius: 6px;
+  }
+
+  .room-zigzag-image img {
+    min-height: 200px;
+    height: 100%;
+  }
+
+  .room-zigzag-icon {
+    font-size: 28px;
+  }
+
+  .room-zigzag-price {
+    font-size: 0.85rem;
+  }
+
+  .room-zigzag-desc {
+    font-size: 0.75rem;
+    line-height: 1.5;
+    max-width: 100%;
+  }
+
+  .room-zigzag-btn {
+    padding: 8px 20px;
+    font-size: 0.75rem;
+    margin-top: var(--spacing-sm);
+  }
 }
 
 .mb-sm { margin-bottom: var(--spacing-sm); }

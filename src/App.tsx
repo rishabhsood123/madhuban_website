@@ -337,16 +337,24 @@ function HomePage() {
             </h2>
           </div>
 
-          <div className="bento-grid">
-            {rooms.map(room => (
-              <Link key={room.id} to={`/room/${room.id}`} className="card room-card col-span-6 room-card-link">
-                <img src={room.heroImage} alt={room.name} className="room-img" />
-                <div className="room-content">
-                  <h3 className="font-headline headline-md text-primary mb-sm">{room.name}</h3>
-                  <p className="body-md text-on-surface-variant">{room.description}</p>
-                  <span className="room-card-cta label-sm">View details →</span>
+          <div className="rooms-zigzag">
+            {rooms.map((room, index) => (
+              <div key={room.id} className="room-zigzag-card">
+                <div className={`room-zigzag-row ${index % 2 !== 0 ? 'room-zigzag-row--reverse' : ''}`}>
+                  <div className="room-zigzag-image-col">
+                    <h3 className="font-headline headline-md text-primary room-zigzag-name">{room.name}</h3>
+                    <div className="room-zigzag-image">
+                      <img src={room.heroImage} alt={room.name} />
+                    </div>
+                  </div>
+                  <div className="room-zigzag-content">
+                    <span className="material-symbols-outlined room-zigzag-icon">luggage</span>
+                    <p className="font-headline label-lg room-zigzag-price">From {room.priceFormatted} / night</p>
+                    <p className="body-md text-on-surface-variant room-zigzag-desc">{room.description}</p>
+                    <Link to={`/room/${room.id}`} className="room-zigzag-btn">View Details</Link>
+                  </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
 
