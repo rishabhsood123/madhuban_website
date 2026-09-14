@@ -520,13 +520,13 @@ body {
 .facilities-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-md);
+  gap: 24px 16px;
 }
 
 @media (min-width: 768px) {
   .facilities-grid {
-    grid-template-columns: repeat(6, 1fr);
-    gap: var(--spacing-lg);
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px 32px;
   }
 }
 
@@ -535,9 +535,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-xs);
-  min-height: 80px;
+  gap: 12px;
   text-align: center;
 }
 
@@ -545,25 +543,64 @@ body {
   opacity: 0.8;
 }
 
+.facility-icon-circle {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background-color: #4F5740;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+@media (min-width: 768px) {
+  .facility-icon-circle {
+    width: 100px;
+    height: 100px;
+  }
+}
+
 .facility-icon {
+  position: relative;
+  z-index: 1;
   font-size: 28px;
-  color: var(--secondary);
+  color: #FEFCF7;
   flex-shrink: 0;
 }
 
+@media (min-width: 768px) {
+  .facility-icon {
+    font-size: 34px;
+  }
+}
+
 .facility-label {
-  color: var(--primary);
-  font-size: 10px;
+  color: var(--on-surface);
+  font-size: 12px;
   line-height: 1.4;
   text-align: center;
 }
 
+@media (min-width: 768px) {
+  .facility-label {
+    font-size: 14px;
+  }
+}
+
 .facility-sublabel {
   color: var(--secondary);
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.3;
   text-align: center;
-  margin-top: 2px;
+  margin-top: -4px;
+  font-style: italic;
 }
 
 .house-rules-list {

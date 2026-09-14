@@ -365,57 +365,83 @@ function HomePage() {
 
           <div className="facilities-grid">
             <div className="facility-item">
-              <span className="material-symbols-outlined facility-icon">restaurant</span>
+              <div className="facility-icon-circle" style={{ WebkitMaskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)`, maskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)` }}>
+                <span className="material-symbols-outlined facility-icon">restaurant</span>
+              </div>
               <span className="font-headline label-md facility-label">Home-Cooked Meals</span>
             </div>
             <div className="facility-item">
-              <span className="material-symbols-outlined facility-icon">landscape</span>
+              <div className="facility-icon-circle" style={{ WebkitMaskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)`, maskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)` }}>
+                <span className="material-symbols-outlined facility-icon">landscape</span>
+              </div>
               <span className="font-headline label-md facility-label">Mountain Views</span>
             </div>
             <div className="facility-item">
-              <span className="material-symbols-outlined facility-icon">park</span>
+              <div className="facility-icon-circle" style={{ WebkitMaskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)`, maskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)` }}>
+                <span className="material-symbols-outlined facility-icon">park</span>
+              </div>
               <span className="font-headline label-md facility-label">Orchard Access</span>
             </div>
             <div className="facility-item">
-              <span className="material-symbols-outlined facility-icon">wifi</span>
+              <div className="facility-icon-circle" style={{ WebkitMaskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)`, maskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)` }}>
+                <span className="material-symbols-outlined facility-icon">wifi</span>
+              </div>
               <span className="font-headline label-md facility-label">Wi-Fi</span>
             </div>
             <div className="facility-item">
-              <span className="material-symbols-outlined facility-icon">water</span>
+              <div className="facility-icon-circle" style={{ WebkitMaskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)`, maskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)` }}>
+                <span className="material-symbols-outlined facility-icon">water</span>
+              </div>
               <span className="font-headline label-md facility-label">River Nearby</span>
             </div>
             <div className="facility-item">
-              <span className="material-symbols-outlined facility-icon">local_fire_department</span>
+              <div className="facility-icon-circle" style={{ WebkitMaskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)`, maskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)` }}>
+                <span className="material-symbols-outlined facility-icon">local_fire_department</span>
+              </div>
               <span className="font-headline label-md facility-label">Evening Campfire</span>
               <span className="facility-sublabel">₹500/head/day</span>
             </div>
             <div className="facility-item">
-              <span className="material-symbols-outlined facility-icon">water_drop</span>
+              <div className="facility-icon-circle" style={{ WebkitMaskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)`, maskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)` }}>
+                <span className="material-symbols-outlined facility-icon">water_drop</span>
+              </div>
               <span className="font-headline label-md facility-label">Hot Water</span>
             </div>
             <div className="facility-item">
-              <span className="material-symbols-outlined facility-icon">local_drink</span>
+              <div className="facility-icon-circle" style={{ WebkitMaskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)`, maskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)` }}>
+                <span className="material-symbols-outlined facility-icon">local_drink</span>
+              </div>
               <span className="font-headline label-md facility-label">Spring Water</span>
             </div>
             <div className="facility-item">
-              <span className="material-symbols-outlined facility-icon">local_parking</span>
+              <div className="facility-icon-circle" style={{ WebkitMaskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)`, maskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)` }}>
+                <span className="material-symbols-outlined facility-icon">local_parking</span>
+              </div>
               <span className="font-headline label-md facility-label">Free Parking</span>
             </div>
             <div className="facility-item">
-              <span className="material-symbols-outlined facility-icon">pets</span>
+              <div className="facility-icon-circle" style={{ WebkitMaskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)`, maskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)` }}>
+                <span className="material-symbols-outlined facility-icon">pets</span>
+              </div>
               <span className="font-headline label-md facility-label">Pet Friendly</span>
             </div>
             <div className="facility-item">
-              <span className="material-symbols-outlined facility-icon">local_taxi</span>
+              <div className="facility-icon-circle" style={{ WebkitMaskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)`, maskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)` }}>
+                <span className="material-symbols-outlined facility-icon">local_taxi</span>
+              </div>
               <span className="font-headline label-md facility-label">Taxi Assistance</span>
             </div>
             <div className="facility-item">
-              <span className="material-symbols-outlined facility-icon">directions_walk</span>
+              <div className="facility-icon-circle" style={{ WebkitMaskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)`, maskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)` }}>
+                <span className="material-symbols-outlined facility-icon">directions_walk</span>
+              </div>
               <span className="font-headline label-md facility-label">Trek & Activity Guidance</span>
               <span className="facility-sublabel">₹500/head/day for local treks</span>
             </div>
             <div className="facility-item">
-              <span className="material-symbols-outlined facility-icon">two_wheeler</span>
+              <div className="facility-icon-circle" style={{ WebkitMaskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)`, maskImage: `url(${import.meta.env.BASE_URL}assets/circle-01.png)` }}>
+                <span className="material-symbols-outlined facility-icon">two_wheeler</span>
+              </div>
               <span className="font-headline label-md facility-label">Bike Rental</span>
               <span className="facility-sublabel">With prior notice</span>
             </div>
