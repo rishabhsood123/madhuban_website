@@ -1,3 +1,20 @@
+/* Montserrat Variable Font (self-hosted) */
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./assets/fonts/montserrat/Montserrat-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./assets/fonts/montserrat/Montserrat-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 /* Reset & Base Styles */
 * {
   margin: 0;
@@ -20,8 +37,8 @@
   --tertiary-fixed: #e1e4d8;
 
   /* Fonts */
-  --font-headline: 'Playfair Display', serif;
-  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-headline: 'Montserrat', sans-serif;
+  --font-body: 'Montserrat', sans-serif;
 
   /* Spacing */
   --spacing-xs: 4px;
@@ -53,8 +70,8 @@ body {
   background-color: var(--surface);
   color: var(--on-surface);
   font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 12px;
+  line-height: 18px;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -75,33 +92,33 @@ body {
 }
 
 .headline-xl { 
-  font-size: clamp(32px, 5.5vw, 48px); 
-  line-height: clamp(40px, 6.5vw, 56px); 
+  font-size: clamp(28px, 5vw, 40px); 
+  line-height: clamp(34px, 6vw, 48px); 
   letter-spacing: -0.02em; 
 }
 .headline-lg { 
-  font-size: clamp(24px, 4vw, 32px); 
-  line-height: clamp(32px, 5vw, 40px); 
+  font-size: clamp(20px, 3.5vw, 28px); 
+  line-height: clamp(26px, 4.5vw, 36px); 
 }
 .headline-md { 
-  font-size: clamp(20px, 3vw, 24px); 
-  line-height: clamp(28px, 4vw, 32px); 
+  font-size: clamp(16px, 2.5vw, 20px); 
+  line-height: clamp(22px, 3.5vw, 28px); 
   font-weight: 500; 
 }
 .headline-sm { 
-  font-size: clamp(22px, 3.5vw, 28px); 
-  line-height: clamp(28px, 4.5vw, 36px); 
+  font-size: clamp(18px, 3vw, 24px); 
+  line-height: clamp(24px, 4vw, 32px); 
 }
 
-.label-md { font-size: 14px; line-height: 16px; letter-spacing: 0.05em; font-weight: 600; text-transform: uppercase; }
-.label-sm { font-size: 12px; line-height: 14px; font-weight: 500; }
+.label-md { font-size: 11px; line-height: 14px; letter-spacing: 0.05em; font-weight: 600; text-transform: uppercase; }
+.label-sm { font-size: 10px; line-height: 12px; font-weight: 500; }
 
 .body-lg { 
-  font-size: clamp(16px, 2vw, 18px); 
-  line-height: clamp(24px, 3vw, 28px); 
+  font-size: clamp(13px, 1.8vw, 15px); 
+  line-height: clamp(20px, 2.6vw, 24px); 
 }
-.body-md { font-size: 16px; line-height: 24px; }
-.body-sm { font-size: 14px; line-height: 20px; }
+.body-md { font-size: 12px; line-height: 18px; }
+.body-sm { font-size: 11px; line-height: 16px; }
 
 /* Layout Classes */
 .container {
@@ -368,7 +385,7 @@ body {
 }
 
 .hero-subtitle {
-  font-family: 'Aptos', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Montserrat', sans-serif;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   font-weight: 500;
