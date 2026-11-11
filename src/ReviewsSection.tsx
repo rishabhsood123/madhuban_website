@@ -215,7 +215,13 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
   // Reset index when filter changes or when reviews list updates
   useEffect(() => {
     setFeaturedIndex(0);
-  }, [filterRoom, reviews.length]);
+  }, [reviews.length]);
+
+  const closeAllReviewsModal = () => {
+    setIsAllReviewsModalOpen(false);
+    setSearchQuery('');
+    setFilterRoom(roomId || 'all');
+  };
 
   const handleTransition = useCallback((nextIndex: number) => {
     if (isFading || reviews.length === 0) return;
@@ -283,8 +289,8 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
     setLoading(true);
     try {
       const queryParams = new URLSearchParams();
-      if (filterRoom && filterRoom !== 'all') {
-        queryParams.set('roomId', filterRoom);
+      if (roomId) {
+        queryParams.set('roomId', roomId);
       }
       if (isAdmin) {
         if (showHiddenOnly) {
@@ -312,7 +318,7 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
     } finally {
       setLoading(false);
     }
-  }, [filterRoom, isAdmin, adminKey, showHiddenOnly]);
+  }, [roomId, isAdmin, adminKey, showHiddenOnly]);
 
   useEffect(() => {
     fetchReviews();
@@ -479,6 +485,11 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
 
   // Filtered reviews for "Show all reviews" modal
   const filteredAllReviews = reviews.filter((r) => {
+    if (filterRoom && filterRoom !== 'all') {
+      if (r.room_id !== filterRoom && r.room_id !== 'overall') {
+        return false;
+      }
+    }
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
     return r.name.toLowerCase().includes(q) || r.comment.toLowerCase().includes(q);
@@ -524,7 +535,7 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
         {/* Centered Section Header matching rest of website */}
         <div className="intro-text reviews-header-text" style={{ textAlign: 'center', marginBottom: '28px' }}>
           <h2 className="font-headline headline-sm intro-title" style={{ marginBottom: '8px' }}>
-            Guest Reviews
+            What our guests say about us
           </h2>
           <div className="reviews-hero-subtitle-centered">
             <StarRating rating={numericRating} size={20} />
@@ -594,37 +605,6 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
               </div>
               <span className="category-value label-sm">{stats.value.toFixed(1)}</span>
             </div>
-          </div>
-        )}
-
-        {/* Filter Pills */}
-        {!roomId && (
-          <div className="reviews-filter-bar">
-            <span className="body-sm text-on-surface-variant filter-title">Filter by stay:</span>
-            <button 
-              className={`filter-pill ${filterRoom === 'all' ? 'active' : ''}`}
-              onClick={() => setFilterRoom('all')}
-            >
-              All Stays
-            </button>
-            <button 
-              className={`filter-pill ${filterRoom === 'orchard-room' ? 'active' : ''}`}
-              onClick={() => setFilterRoom('orchard-room')}
-            >
-              Orchard Room
-            </button>
-            <button 
-              className={`filter-pill ${filterRoom === 'valley-room' ? 'active' : ''}`}
-              onClick={() => setFilterRoom('valley-room')}
-            >
-              Valley Room
-            </button>
-            <button 
-              className={`filter-pill ${filterRoom === 'attic-stay' ? 'active' : ''}`}
-              onClick={() => setFilterRoom('attic-stay')}
-            >
-              Attic Stay
-            </button>
           </div>
         )}
 
@@ -797,11 +777,11 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
 
       {/* FULL REVIEWS MODAL ("Show all N reviews") */}
       {isAllReviewsModalOpen && (
-        <div className="review-modal-backdrop" onClick={() => setIsAllReviewsModalOpen(false)}>
+        <div className="review-modal-backdrop" onClick={closeAllReviewsModal}>
           <div className="all-reviews-modal-card" onClick={(e) => e.stopPropagation()}>
             <button 
               className="review-modal-close" 
-              onClick={() => setIsAllReviewsModalOpen(false)}
+              onClick={closeAllReviewsModal}
               aria-label="Close modal"
             >
               <span className="material-symbols-outlined">close</span>
@@ -811,7 +791,9 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
             <div className="all-reviews-modal-header">
               <StarRating rating={numericRating} size={22} />
               <div>
-                <h2 className="font-headline headline-sm text-primary">All {totalCount} reviews</h2>
+                <h2 className="font-headline headline-sm text-primary">
+                  {filterRoom === 'all' && !searchQuery ? `All ${totalCount} reviews` : `${filteredAllReviews.length} reviews`}
+                </h2>
                 <p className="body-sm text-on-surface-variant">Real experiences from guests at Madhuban</p>
               </div>
             </div>
@@ -828,11 +810,42 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
               />
             </div>
 
+            {/* Filter Pills */}
+            {!roomId && (
+              <div className="reviews-filter-bar modal-filter-bar">
+                <span className="body-sm text-on-surface-variant filter-title">Filter by stay:</span>
+                <button 
+                  className={`filter-pill ${filterRoom === 'all' ? 'active' : ''}`}
+                  onClick={() => setFilterRoom('all')}
+                >
+                  All Stays
+                </button>
+                <button 
+                  className={`filter-pill ${filterRoom === 'orchard-room' ? 'active' : ''}`}
+                  onClick={() => setFilterRoom('orchard-room')}
+                >
+                  Orchard Room
+                </button>
+                <button 
+                  className={`filter-pill ${filterRoom === 'valley-room' ? 'active' : ''}`}
+                  onClick={() => setFilterRoom('valley-room')}
+                >
+                  Valley Room
+                </button>
+                <button 
+                  className={`filter-pill ${filterRoom === 'attic-stay' ? 'active' : ''}`}
+                  onClick={() => setFilterRoom('attic-stay')}
+                >
+                  Attic Stay
+                </button>
+              </div>
+            )}
+
             {/* Scrollable list of reviews */}
             <div className="all-reviews-list">
               {filteredAllReviews.length === 0 ? (
                 <p className="body-md text-on-surface-variant" style={{ padding: '24px 0', textAlign: 'center' }}>
-                  No reviews match "{searchQuery}"
+                  {searchQuery ? `No reviews match "${searchQuery}"` : 'No reviews found for this selection.'}
                 </p>
               ) : (
                 filteredAllReviews.map((rev) => (

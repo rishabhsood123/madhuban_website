@@ -2058,6 +2058,16 @@ body {
   border-color: var(--primary);
 }
 
+.reviews-filter-bar.modal-filter-bar {
+  margin-bottom: 20px;
+  gap: 8px;
+}
+
+.modal-filter-bar .filter-pill {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
 /* Review Cards Grid */
 .reviews-grid {
   display: grid;
