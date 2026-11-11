@@ -69,6 +69,59 @@ function getHandwrittenFontClass(id: number | string): string {
   return `handwritten-font-${Math.abs(hash)}`;
 }
 
+// Reusable StarRating component that renders 5 stars filled as per rating (with fractional support)
+function StarRating({ rating, maxStars = 5, size = 20 }: { rating: number; maxStars?: number; size?: number }) {
+  return (
+    <div 
+      className="rating-stars-row" 
+      role="img" 
+      aria-label={`${rating.toFixed(1)} out of ${maxStars} stars`}
+    >
+      {Array.from({ length: maxStars }, (_, index) => {
+        const starIndex = index + 1;
+        const fillPercent = Math.max(0, Math.min(100, Math.round((rating - (starIndex - 1)) * 100)));
+        return (
+          <span 
+            key={starIndex} 
+            className="star-item-wrapper" 
+            style={{ width: `${size}px`, height: `${size}px` }}
+          >
+            {/* Background empty star */}
+            <svg 
+              className="star-empty" 
+              viewBox="0 0 24 24" 
+              width={size} 
+              height={size}
+              style={{ width: `${size}px`, height: `${size}px`, minWidth: `${size}px` }}
+              aria-hidden="true"
+            >
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+            </svg>
+            {/* Foreground filled star */}
+            {fillPercent > 0 && (
+              <span 
+                className="star-filled-clip" 
+                style={{ width: `${fillPercent}%` }}
+                aria-hidden="true"
+              >
+                <svg 
+                  className="star-filled" 
+                  viewBox="0 0 24 24" 
+                  width={size} 
+                  height={size}
+                  style={{ width: `${size}px`, height: `${size}px`, minWidth: `${size}px` }}
+                >
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg>
+              </span>
+            )}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState<ReviewStats | null>(null);
@@ -421,7 +474,7 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
     }
   };
 
-  const avgScore = stats ? stats.average.toFixed(1) : '5.0';
+  const numericRating = stats ? stats.average : 5.0;
   const totalCount = stats ? stats.total : reviews.length;
 
   // Filtered reviews for "Show all reviews" modal
@@ -474,14 +527,9 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
             Guest Reviews
           </h2>
           <div className="reviews-hero-subtitle-centered">
-            <span className="reviews-score-pill">
-              <svg className="star-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-              </svg>
-              <span className="score-num">{avgScore}</span>
-            </span>
-            <span className="body-md text-on-surface-variant">
-              · {totalCount} {totalCount === 1 ? 'review' : 'reviews'} from guests who stayed at Madhuban
+            <StarRating rating={numericRating} size={20} />
+            <span className="reviews-hero-count body-md text-on-surface-variant">
+              <span className="reviews-dot-sep">·</span> {totalCount} {totalCount === 1 ? 'review' : 'reviews'} from guests who stayed at Madhuban
             </span>
           </div>
           
@@ -761,12 +809,7 @@ export default function ReviewsSection({ roomId }: ReviewsSectionProps) {
 
             {/* Modal Header */}
             <div className="all-reviews-modal-header">
-              <div className="reviews-score-badge">
-                <svg className="star-icon-svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                </svg>
-                <span className="score-value">{avgScore}</span>
-              </div>
+              <StarRating rating={numericRating} size={22} />
               <div>
                 <h2 className="font-headline headline-sm text-primary">All {totalCount} reviews</h2>
                 <p className="body-sm text-on-surface-variant">Real experiences from guests at Madhuban</p>

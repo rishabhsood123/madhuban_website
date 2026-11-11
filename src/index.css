@@ -1848,6 +1848,63 @@ body {
   flex-wrap: wrap;
 }
 
+/* Rating Stars Display (filled as per rating with fractional support) */
+.rating-stars-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  vertical-align: middle;
+}
+
+.star-item-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+}
+
+.star-item-wrapper .star-empty {
+  display: block;
+  fill: var(--surface-container-highest, #e9e2d2);
+  flex-shrink: 0;
+}
+
+.star-item-wrapper .star-filled-clip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+}
+
+.star-item-wrapper .star-filled {
+  display: block;
+  fill: var(--secondary);
+  flex-shrink: 0;
+}
+
+.reviews-hero-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reviews-dot-sep {
+  opacity: 0.7;
+}
+
+@media (max-width: 600px) {
+  .reviews-hero-subtitle-centered {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .reviews-dot-sep {
+    display: none;
+  }
+}
+
 .reviews-score-pill {
   display: inline-flex;
   align-items: center;
