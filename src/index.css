@@ -2674,8 +2674,8 @@ body {
 
   .header-mobile-hindi-curved {
     width: 100%;
-    max-width: 180px;
-    height: 58px;
+    max-width: 190px;
+    height: 60px;
     overflow: visible;
     display: block;
     user-select: none;
@@ -2683,7 +2683,7 @@ body {
 
   .header-mobile-hindi-svg-text {
     font-family: 'AMS Manthan', serif;
-    font-size: 40px;
+    font-size: 48px;
     fill: #000000;
   }
 
