@@ -313,13 +313,28 @@ function HomePage() {
 
             {/* Column 2 (Center): Madhuban Hindi font in black, center aligned with Row 1 & Row 2 */}
             <div className="header-mobile-col header-mobile-center">
-              <span
-                className="header-mobile-hindi-title"
-                style={{ fontFamily: "'AMS Manthan', serif" }}
+              <svg
+                className="header-mobile-hindi-curved"
+                viewBox="0 0 220 70"
                 aria-label="मधुबन"
+                role="img"
               >
-                maYaubana
-              </span>
+                <defs>
+                  <path
+                    id="mobile-header-curve"
+                    d="M 15 52 Q 110 32 205 52"
+                    fill="none"
+                  />
+                </defs>
+                <text
+                  className="header-mobile-hindi-svg-text"
+                  textAnchor="middle"
+                >
+                  <textPath href="#mobile-header-curve" startOffset="50%">
+                    maYaubana
+                  </textPath>
+                </text>
+              </svg>
             </div>
 
             {/* Column 3 (Right): Row 1 = 2-line menu, Row 2 = Google Maps icon */}

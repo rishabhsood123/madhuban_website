@@ -2669,19 +2669,22 @@ body {
     justify-content: center;
     text-align: center;
     min-width: 0;
+    overflow: visible;
   }
 
-  .header-mobile-hindi-title {
-    font-family: 'AMS Manthan', serif;
-    font-size: 34px;
-    line-height: 1;
-    color: #000000;
-    white-space: nowrap;
-    text-align: center;
+  .header-mobile-hindi-curved {
+    width: 100%;
+    max-width: 180px;
+    height: 58px;
+    overflow: visible;
+    display: block;
     user-select: none;
-    display: inline-block;
-    letter-spacing: normal;
-    transform: translateY(-2px);
+  }
+
+  .header-mobile-hindi-svg-text {
+    font-family: 'AMS Manthan', serif;
+    font-size: 40px;
+    fill: #000000;
   }
 
   .header-mobile-col.header-mobile-right {
