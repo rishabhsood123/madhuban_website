@@ -15,6 +15,15 @@
   font-display: swap;
 }
 
+/* AMS Manthan Font */
+@font-face {
+  font-family: 'AMS Manthan';
+  src: url('./assets/fonts/ams-manthan/AMS-Manthan.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
 /* Reset & Base Styles */
 * {
   margin: 0;
@@ -341,7 +350,7 @@ body {
 }
 
 .hero-title {
-  font-family: 'Rozha One', 'Playfair Display', serif;
+  font-family: 'AMS Manthan', 'Rozha One', 'Playfair Display', serif;
   font-weight: 400;
   font-size: clamp(64px, 15vw, 160px);
   line-height: 1.1;

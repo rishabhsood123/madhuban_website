@@ -312,9 +312,10 @@ function HomePage() {
               </span>
               <span
                 className={`hero-title-lang${isHindi ? ' hero-lang-active' : ' hero-lang-exit'}`}
-                style={{ fontFamily: "'Rozha One', serif", fontWeight: 400 }}
+                style={{ fontFamily: "'AMS Manthan', serif", fontWeight: 400 }}
+                aria-label="मधुबन"
               >
-                मधुबन
+                maYaubana
               </span>
             </h1>
             <p className="hero-subtitle label-sm">BREATHABLE HOMESTAY IN THE HEART OF NATURE.</p>
