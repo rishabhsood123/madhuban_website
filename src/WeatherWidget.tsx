@@ -52,8 +52,12 @@ const ICON_MAPPING: Record<string, any> = {
   foggy: fogIcon,
 };
 
-export default function WeatherWidget() {
-  const [weather, setWeather] = useState<{ temp: number, text: string, icon: string } | null>(null);
+export default function WeatherWidget({ compact = false }: { compact?: boolean }) {
+  const [weather, setWeather] = useState<{ temp: number, text: string, icon: string }>({
+    temp: 17,
+    text: 'Mainly Clear',
+    icon: 'partly_cloudy_day'
+  });
   const playerRef = useRef<Player>(null);
 
   useEffect(() => {
@@ -84,6 +88,27 @@ export default function WeatherWidget() {
   }, [weather]);
 
   if (!weather) return null;
+
+  if (compact) {
+    return (
+      <div className="flex items-center weather-widget weather-widget-compact" style={{ gap: '4px' }}>
+        <div className="weather-icon-container" style={{ width: '26px', height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Player
+            ref={playerRef}
+            icon={ICON_MAPPING[weather.icon] || cloudyIcon}
+            size={26}
+            onReady={handleReady}
+            onComplete={() => {
+              playerRef.current?.playFromBeginning();
+            }}
+          />
+        </div>
+        <span className="font-headline label-sm text-on-surface-variant weather-temp-compact" style={{ textTransform: 'none', fontVariantNumeric: 'lining-nums', fontWeight: 600, fontSize: '13px', lineHeight: 1 }}>
+          {weather.temp}°C
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center weather-widget" style={{ marginLeft: '12px', gap: '8px' }}>

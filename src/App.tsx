@@ -149,9 +149,11 @@ function MobileBottomNav() {
 
 function HomePage() {
   const mapsPlayerRef = useRef<Player>(null);
+  const mobileMapsPlayerRef = useRef<Player>(null);
   const [isHindi, setIsHindi] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const id = setInterval(() => setIsHindi(h => !h), 4000);
@@ -161,7 +163,7 @@ function HomePage() {
   // Close hamburger menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false);
       }
     };
@@ -183,13 +185,14 @@ function HomePage() {
 
   return (
     <>
-      <header className="header">
+      <header className="header" ref={headerRef}>
         <div className="container">
-          <div className="header-top">
+          {/* Desktop Header Layout */}
+          <div className="header-top header-desktop-layout">
             <div className="logo-container" style={{ position: 'relative' }} ref={menuRef}>
               {/* Minimal Hamburger Menu Button (Top Left before Logo) */}
               <button 
-                className={`hamburger-menu-btn desktop-only ${isMenuOpen ? 'active' : ''}`}
+                className={`hamburger-menu-btn ${isMenuOpen ? 'active' : ''}`}
                 onClick={() => setIsMenuOpen(prev => !prev)}
                 aria-label="Toggle navigation menu"
                 aria-expanded={isMenuOpen}
@@ -291,6 +294,135 @@ function HomePage() {
               </a>
             </div>
           </div>
+
+          {/* Mobile Two-Row Header Layout (<= 768px) */}
+          <div className="header-mobile-layout">
+            {/* Column 1 (Left): Row 1 = Logo, Row 2 = Weather */}
+            <div className="header-mobile-col header-mobile-left">
+              <div className="header-mobile-logo-wrap">
+                <img 
+                  alt="Madhuban Logo" 
+                  className="logo-img-mobile" 
+                  src={`${import.meta.env.BASE_URL}assets/Untitled-1-01.png`} 
+                />
+              </div>
+              <div className="header-mobile-weather-wrap">
+                <WeatherWidget compact={true} />
+              </div>
+            </div>
+
+            {/* Column 2 (Center): Madhuban Hindi font in black, center aligned with Row 1 & Row 2 */}
+            <div className="header-mobile-col header-mobile-center">
+              <span
+                className="header-mobile-hindi-title"
+                style={{ fontFamily: "'AMS Manthan', serif" }}
+                aria-label="मधुबन"
+              >
+                maYaubana
+              </span>
+            </div>
+
+            {/* Column 3 (Right): Row 1 = 2-line menu, Row 2 = Google Maps icon */}
+            <div className="header-mobile-col header-mobile-right">
+              <button 
+                className={`header-two-line-burger ${isMenuOpen ? 'open' : ''}`}
+                onClick={() => setIsMenuOpen(prev => !prev)}
+                aria-label="Toggle navigation menu"
+                aria-expanded={isMenuOpen}
+              >
+                <span className="burger-line line-1" />
+                <span className="burger-line line-2" />
+              </button>
+              <div className="header-mobile-maps-wrap">
+                <a
+                  href="https://maps.app.goo.gl/WDtcm3HDFhrHF83T6"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="header-map-link-mobile"
+                  title="Open in Google Maps"
+                >
+                  <div style={{ width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Player
+                      ref={mobileMapsPlayerRef}
+                      icon={googleMapsIcon}
+                      size={28}
+                      onReady={() => mobileMapsPlayerRef.current?.playFromBeginning()}
+                    />
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Slide-down Navigation Overlay */}
+        <div className={`mobile-nav-overlay ${isMenuOpen ? 'active' : ''}`}>
+          <nav className="mobile-nav-links">
+            <a 
+              className="mobile-nav-link-item" 
+              href="#about" 
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <span className="material-symbols-outlined item-icon">info</span>
+              <span>About Us</span>
+            </a>
+            <a 
+              className="mobile-nav-link-item" 
+              href="#accommodation" 
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <span className="material-symbols-outlined item-icon">bed</span>
+              <span>Accommodation</span>
+            </a>
+            <a 
+              className="mobile-nav-link-item" 
+              href="#facilities" 
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <span className="material-symbols-outlined item-icon">wifi</span>
+              <span>Facilities</span>
+            </a>
+            <a 
+              className="mobile-nav-link-item" 
+              href="#reviews" 
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <span className="material-symbols-outlined item-icon">star</span>
+              <span>Guest Reviews</span>
+            </a>
+            <a 
+              className="mobile-nav-link-item" 
+              href="#gallery" 
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <span className="material-symbols-outlined item-icon">photo_library</span>
+              <span>Gallery</span>
+            </a>
+            <a 
+              className="mobile-nav-link-item" 
+              href="#host" 
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <span className="material-symbols-outlined item-icon">face</span>
+              <span>Meet Your Host</span>
+            </a>
+            <div className="mobile-nav-divider"></div>
+            <a 
+              className="mobile-nav-link-item contact-item" 
+              href="#contact" 
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <span className="material-symbols-outlined item-icon">mail</span>
+              <span>Contact Us</span>
+            </a>
+            <a 
+              className="mobile-nav-cta-btn" 
+              href="#accommodation" 
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Plan your stay
+            </a>
+          </nav>
         </div>
       </header>
 
