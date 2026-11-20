@@ -311,30 +311,23 @@ function HomePage() {
               </div>
             </div>
 
-            {/* Column 2 (Center): Madhuban Hindi font in black, center aligned with Row 1 & Row 2 */}
+            {/* Column 2 (Center): Madhuban English script wordmark, center aligned with Row 1 & Row 2 */}
             <div className="header-mobile-col header-mobile-center">
-              <svg
-                className="header-mobile-hindi-curved"
-                viewBox="0 0 220 70"
-                aria-label="मधुबन"
-                role="img"
+              <a
+                href="#"
+                className="header-mobile-wordmark-link"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                aria-label="Madhuban Homestay - Back to top"
               >
-                <defs>
-                  <path
-                    id="mobile-header-curve"
-                    d="M 15 52 Q 110 32 205 52"
-                    fill="none"
-                  />
-                </defs>
-                <text
-                  className="header-mobile-hindi-svg-text"
-                  textAnchor="middle"
-                >
-                  <textPath href="#mobile-header-curve" startOffset="50%">
-                    maYaubana
-                  </textPath>
-                </text>
-              </svg>
+                <img
+                  src={`${import.meta.env.BASE_URL}assets/madhuban-script-wordmark-white.png`}
+                  alt="Madhuban"
+                  className="header-mobile-script-wordmark"
+                />
+              </a>
             </div>
 
             {/* Column 3 (Right): Row 1 = 2-line menu, Row 2 = Google Maps icon */}
