@@ -451,6 +451,14 @@ body {
   color: var(--on-surface-variant);
 }
 
+.intro-desc p {
+  margin-bottom: var(--spacing-md);
+}
+
+.intro-desc p:last-child {
+  margin-bottom: 0;
+}
+
 .host-content p {
   margin-bottom: var(--spacing-md);
 }

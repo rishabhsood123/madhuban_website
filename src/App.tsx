@@ -474,9 +474,17 @@ function HomePage() {
             <h1 className="font-headline headline-sm intro-title">
               About Us
             </h1>
-            <p className="body-lg intro-desc">
-              Welcome to Madhuban Homestay, a warm family-run retreat nestled in an orchard of apple, plum, apricot, pear, and persimmons in the serene Fozal Valley, Kullu. Our wooden A-frame cottage blends traditional Himachali charm with modern comfort. Enjoy sweeping views of snow-capped Himalayan peaks and the gentle sound of the Fozal River nearby — a perfect escape for those seeking peace, nature, and simplicity.
-            </p>
+            <div className="body-lg intro-desc">
+              <p>
+                Madhuban is a family-run homestay set on a 7-acre fruit orchard in Fozal Valley, Kullu, Himachal Pradesh. The property features a wooden A-frame cottage, surrounded by apple, plum, apricot, pear and persimmon trees, with the Fozal River flowing just 150 metres away.
+              </p>
+              <p>
+                The cottage sits within the orchard, with open views of the surrounding mountains and plenty of space to enjoy the outdoors. Depending on the season, the orchard takes on a different character — from flowering trees in spring to fruit-laden branches through summer and autumn.
+              </p>
+              <p>
+                Madhuban is a place to stay close to nature, enjoy the quiet of the valley and experience a slower side of life in the mountains.
+              </p>
+            </div>
           </div>
 
           <div id="accommodation" className="intro-text" style={{ marginTop: '48px', marginBottom: '24px' }}>
